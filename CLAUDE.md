@@ -105,5 +105,5 @@ Never edit or truncate `tutor/events.jsonl`: it is the learner's record.
 ## Conventions
 
 Code, identifiers, code comments and repo docs in English; all learner-facing
-text in Spanish. No em dashes anywhere. Lab files are learner-facing, so their
+text in Spanish, including `README.md` (the course's public front page). No em dashes anywhere. Lab files are learner-facing, so their
 instructions are Spanish comments.
