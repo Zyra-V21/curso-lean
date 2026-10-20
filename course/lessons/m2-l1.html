@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2.1 Tipos: cada cosa tiene su etiqueta | Leer Lean</title>
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="lesson" data-lesson="m2-l1" data-base="../">
+<main id="lesson">
+
+  <section class="step" data-kind="cover">
+    <h1>Tipos: cada cosa tiene su etiqueta</h1>
+    <p class="lede">En una frase: en Lean todo tiene un tipo, y el tipo decide cómo salen las cuentas: restar, dividir y pasarse del máximo.</p>
+    <div class="why">
+      <p><strong>Por qué te importa:</strong> si el modelo de Lean usa un tipo de número distinto al del código real, Lean puede demostrar algo que es verdad en el modelo y falso en el contrato. La primera pregunta de un auditor ante un modelo es: ¿qué tipo usa?</p>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Todo lleva etiqueta</h2>
+    <p>Cada valor en Lean tiene un <strong>tipo</strong>: la clase de cosa que es. Se escribe con dos puntos: <code class="l">5 : Nat</code> se lee «5 es de tipo <code>Nat</code>». <code class="l">#check</code> te enseña la etiqueta de cualquier cosa:</p>
+<pre class="lean" data-check="ok">#check 5  --> 5 : Nat
+#check (5 : Int)  --> 5 : Int
+#check "hola"  --> "hola" : String
+#check true  --> Bool.true : Bool
+#check 2 + 2 = 4  --> 2 + 2 = 4 : Prop</pre>
+    <ul>
+      <li><code class="l">Nat</code>: los naturales, 0, 1, 2, 3... Sin negativos.</li>
+      <li><code class="l">Int</code>: los enteros, también los negativos: ... -2, -1, 0, 1, 2 ...</li>
+      <li><code class="l">String</code>: texto, entre comillas.</li>
+      <li><code class="l">Bool</code>: <code class="l">true</code> o <code class="l">false</code>, para calcular. (<code>Bool.true</code> es el nombre completo de <code class="l">true</code>.)</li>
+      <li><code class="l">Prop</code>: proposiciones, frases que se afirman. Ya las conoces.</li>
+    </ul>
+    <div class="q" data-q="m2-l1.check-prop"></div>
+  </section>
+
+  <section class="step">
+    <h2>Los naturales no bajan de cero</h2>
+    <p>En <code class="l">Nat</code> no existen los negativos. Así que cuando una resta «debería» dar negativo, Lean da 0. No avisa, no da error: 0.</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok">#eval 10 - 3  --> 7
+#eval ⟪3 - 5|natsub⟫  --> 0
+#eval ⟪(3 - 5 : Int)|intsub⟫  --> -2</pre>
+      <script type="application/json">{
+        "natsub": "Resta de naturales: 3 - 5 se queda en 0. Se llama resta truncada: se corta en el cero.",
+        "intsub": "La misma resta, pero diciendo que los números son enteros (<code>: Int</code>). Ahora sí da -2."
+      }</script>
+    </figure>
+    <div class="analogy">
+      <p>Es como un monedero: si tienes 3 € e intentas pagar 5 €, no te quedas en -2 €. En el modelo con <code class="l">Nat</code>, simplemente te quedas en 0 y nadie protesta.</p>
+    </div>
+    <div class="q" data-q="m2-l1.nat-sub"></div>
+  </section>
+
+  <section class="step">
+    <h2>Dividir: el cero y los negativos</h2>
+    <p>Dividir naturales da la parte entera, y <code class="l">%</code> es el resto: <code class="l">7 / 2</code> da 3 y sobra 1. Y una sorpresa: en Lean, dividir entre cero da 0. No es un error.</p>
+<pre class="lean" data-check="ok">#eval 7 / 2  --> 3
+#eval 7 % 2  --> 1
+#eval 7 / 0  --> 0</pre>
+    <p>Con negativos, cada lenguaje redondea a su manera. Con divisor positivo, Lean redondea hacia abajo; Solidity y Rust cortan hacia el cero:</p>
+    <div class="table-scroll">
+      <table class="truth">
+        <thead><tr><th>Cuenta</th><th>Lean (Int)</th><th>Solidity (int256)</th><th>Rust (i64)</th></tr></thead>
+        <tbody>
+          <tr><td>-7 / 2</td><td>-4</td><td>-3</td><td>-3</td></tr>
+          <tr><td>-7 % 2</td><td>1</td><td>-1</td><td>-1</td></tr>
+          <tr><td>7 / 0</td><td>0</td><td>error (revierte)</td><td>error (pánico)</td></tr>
+        </tbody>
+      </table>
+    </div>
+<pre class="lean" data-check="ok">#eval (-7 : Int) / 2  --> -4
+#eval (-7 : Int) % 2  --> 1
+#eval Int.tdiv (-7) 2  --> -3</pre>
+    <p>Lean también tiene la división que corta hacia el cero, pero con otro nombre: <code class="l">Int.tdiv</code>. Si el modelo usa <code class="l">/</code> y el contrato corta hacia el cero, con negativos no calculan lo mismo.</p>
+    <div class="q" data-q="m2-l1.int-div"></div>
+  </section>
+
+  <section class="step">
+    <h2>Tipos que dan la vuelta</h2>
+    <p>Un <code class="l">UInt8</code> guarda de 0 a 255. En Lean, si te pasas, da la vuelta y empieza desde 0, como un cuentakilómetros viejo que después de 999 marca 000. Eso es un <strong>desbordamiento</strong> (en inglés, <em>overflow</em>).</p>
+<pre class="lean" data-check="ok">#eval (255 : UInt8) + 1  --> 0
+#eval (200 : UInt8) + 100  --> 44
+#eval (0 : UInt8) - 1  --> 255
+#eval 2 ^ 256  --> 115792089237316195423570985008687907853269984665640564039457584007913129639936</pre>
+    <p><code class="l">Nat</code>, en cambio, no tiene máximo: nunca da la vuelta. ¿Y los contratos? Depende. Desde Solidity 0.8, pasarse con <code>uint256</code> (o bajar de 0) <strong>revierte</strong> la transacción; solo da la vuelta dentro de un bloque <code>unchecked</code>. En Rust, <code>u64</code> da error (pánico) en modo depuración y da la vuelta en modo <em>release</em> o con funciones como <code>wrapping_add</code>.</p>
+    <div class="q" data-q="m2-l1.wrap"></div>
+  </section>
+
+  <section class="step">
+    <h2>La pregunta del auditor: ¿qué pasa en los casos límite?</h2>
+    <p>La IA modela una retirada de dinero con <code class="l">Nat</code> y demuestra que, al retirar, el saldo nunca crece:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok" data-id="withdraw">def withdraw ⟪(balance amount : Nat)|nat⟫ : Nat := ⟪balance - amount|sub⟫
+
+theorem withdraw_le (balance amount : Nat) :
+    ⟪withdraw balance amount ≤ balance|claim⟫ := by
+  simp [withdraw]</pre>
+      <script type="application/json">{
+        "nat": "El saldo y la cantidad son naturales. Aquí está la decisión importante: el modelo usa <code>Nat</code>.",
+        "sub": "Una resta de naturales: si retiras más de lo que tienes, da 0 en silencio.",
+        "claim": "El enunciado: «después de retirar, el saldo es menor o igual que antes». Para el modelo está demostrado."
+      }</script>
+    </figure>
+    <p>Lean lo acepta. Pero mira qué hace el modelo si retiras 5 de un saldo de 3: da 0, como si la retirada hubiera salido bien. El contrato real hace otra cosa: con Solidity 0.8 la transacción revierte, y dentro de <code>unchecked</code> da la vuelta (como <code class="l">UInt8</code> aquí abajo).</p>
+<pre class="lean" data-check="ok" data-uses="withdraw">#eval withdraw 3 5  --> 0
+#eval (3 : UInt8) - 5  --> 254</pre>
+    <div class="trap">
+      <p><strong>Regla de auditor:</strong> busca los casos límite (restar más de lo que hay, pasarse del máximo, dividir entre 0) y pregunta qué hace el código real: ¿revierte, da la vuelta o da 0? Luego mira si el modelo hace lo mismo. Un modelo con <code class="l">Nat</code> da 0 en silencio.</p>
+    </div>
+    <div class="q" data-q="m2-l1.model-type"></div>
+  </section>
+
+  <section class="step" data-kind="boss">
+    <h2>El jefe, hoy</h2>
+    <p>Hoy despejas las etiquetas de tipo de los campos de arriba del jefe. Ya sabes leerlas: <code class="l">weights : R</code> es «<code>weights</code> es de tipo <code>R</code>».</p>
+    <ul>
+      <li><code class="l">R</code> es el tipo de los números con los que trabaja el protocolo. Qué tipo es exactamente lo verás en la lección 2.5.</li>
+      <li><code class="l">List R</code> es una lista de valores de tipo <code class="l">R</code>.</li>
+      <li><code class="l">R × R × R</code> es un trío: tres valores de tipo <code class="l">R</code> juntos. Aquí <code class="l">×</code> no es una multiplicación.</li>
+      <li><code class="l">Commitment</code> es un compromiso, algo como la raíz de un árbol de Merkle.</li>
+    </ul>
+    <div class="boss-view"></div>
+    <div class="q" data-q="m2-l1.boss-rounds"></div>
+  </section>
+
+  <section class="step" data-kind="lab" data-file="Practice/M2/L1.lean">
+    <h2>Laboratorio</h2>
+    <ol>
+      <li>Pon el cursor en cada línea y mira la respuesta en el panel Lean Infoview. Intenta adivinarla antes.</li>
+      <li>En el <strong>Paso 3</strong>, cambia <code class="l">UInt8</code> por <code class="l">UInt16</code> en la primera línea. ¿Qué responde ahora?</li>
+      <li>En el <strong>Paso 2</strong>, cambia <code class="l">(-7 : Int) / 2</code> por <code class="l">Int.tdiv (-7) 2</code>. Luego Ctrl+Z.</li>
+    </ol>
+    <div class="q" data-q="m2-l1.lab-uint16"></div>
+    <div class="q" data-q="m2-l1.lab-tdiv"></div>
+  </section>
+
+  <section class="step" data-kind="wrap">
+    <h2>Llévate esto</h2>
+    <ul class="takeaways">
+      <li>Todo en Lean tiene un tipo: <code class="l">x : T</code> se lee «x es de tipo T».</li>
+      <li>Con <code class="l">Nat</code>, 3 - 5 da 0 y 7 / 0 da 0; con negativos, la <code class="l">/</code> de Lean redondea distinto que Solidity y Rust.</li>
+      <li>En los casos límite, compara modelo y código: un modelo con <code class="l">Nat</code> da 0 en silencio donde el contrato revierte o da la vuelta.</li>
+    </ul>
+  </section>
+
+</main>
+<script src="../catalog.js"></script>
+<script src="../assets/boss.js"></script>
+<script src="../questions/m2-l1.js"></script>
+<script src="../assets/math.js"></script>
+<script src="../assets/engine.js"></script>
+</body>
+</html>

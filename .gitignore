@@ -1,0 +1,8 @@
+practice/.lake/
+shots/
+__pycache__/
+# The learner's private data: answers, tutor notes and profile.
+tutor/*
+!tutor/profile.example.md
+# The learner's own scratch files.
+ejercicios/

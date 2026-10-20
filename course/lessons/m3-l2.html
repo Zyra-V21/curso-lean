@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>3.2 Hipótesis y conclusión: dónde se esconden las trampas | Leer Lean</title>
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="lesson" data-lesson="m3-l2" data-base="../">
+<main id="lesson">
+
+  <section class="step" data-kind="cover">
+    <h1>Hipótesis y conclusión: dónde se esconden las trampas</h1>
+    <p class="lede">En una frase: un teorema puede ser verdad, compilar sin errores y aun así no decir nada útil, si sus hipótesis no se pueden cumplir o su conclusión se cumple de todas formas.</p>
+    <div class="why">
+      <p><strong>Por qué te importa:</strong> es la trampa más común en código escrito por IA. Cuando a la IA le cuesta demostrar algo, puede acabar demostrando otra cosa más fácil que se le parece. Lean la acepta, porque esa otra cosa sí está demostrada. Solo tú puedes ver que no es lo que pediste.</p>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Hipótesis imposibles</h2>
+    <p>Recuerda la lección 1.3: si la condición es falsa, el «si... entonces» es verdad sin más. Un teorema con una hipótesis imposible se puede demostrar siempre, y no dice nada. A veces lo imposible solo se ve mirando una definición:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok">⟪def transferFee (amount : Nat) : Nat := amount / 100 + 1|def⟫
+
+theorem free_transfer (amount : Nat) ⟪(h : transferFee amount = 0)|imp⟫ : ⟪amount = 1000000|concl⟫ := by
+  unfold transferFee at h
+  omega</pre>
+      <script type="application/json">{
+        "def": "La comisión: un 1 % de la cantidad, más 1. Por ese «más 1», nunca vale 0.",
+        "imp": "«Si la comisión de esta cantidad es 0». Suena posible, pero por la definición no lo es para ninguna cantidad.",
+        "concl": "Suena a algo muy concreto. Pero solo se promete en los casos en que se cumple <code>h</code>, y no hay ninguno."
+      }</script>
+    </figure>
+    <p>Lean lo acepta, porque está demostrado. Se lee: «para toda cantidad, si su comisión es 0, entonces la cantidad es un millón». Leído solo, parece una regla rara pero posible. Con la definición delante, la hipótesis no la cumple ninguna cantidad: la frase no habla de nada.</p>
+    <div class="trap">
+      <p><strong>Prueba de auditor:</strong> antes de fiarte de un teorema, intenta inventar un ejemplo que cumpla todas las hipótesis a la vez. Si no existe ninguno, el teorema está vacío.</p>
+    </div>
+    <div class="q" data-q="m3-l2.impossible"></div>
+  </section>
+
+  <section class="step">
+    <h2>Hipótesis que chocan, o que ya son la respuesta</h2>
+    <p>Más difícil de ver: hipótesis que una a una son posibles, pero juntas no.</p>
+<pre class="lean" data-check="ok">theorem fee_bound (fee : Nat) (h1 : fee &lt; 5) (h2 : 10 &lt; fee) : fee = 0 := by omega</pre>
+    <p>Un <code class="l">fee</code> menor que 5 existe. Uno mayor que 10, también. Uno que cumpla las dos cosas, no. Teorema vacío otra vez.</p>
+    <p>Y la circular: la hipótesis ya es la conclusión.</p>
+<pre class="lean" data-check="ok">theorem safe_transfer (amount balance : Nat) (h : amount ≤ balance) : amount ≤ balance := h</pre>
+    <p>Dice «si la cantidad cabe en el saldo, la cantidad cabe en el saldo». Es verdad y no informa de nada: se ha supuesto justo lo que había que demostrar. Fíjate en la demostración: es solo <code class="l">h</code>, la hipótesis devuelta tal cual.</p>
+    <div class="q" data-q="m3-l2.contradiction-spot"></div>
+  </section>
+
+  <section class="step">
+    <h2>Conclusiones que se cumplen de todas formas</h2>
+    <p>La otra cara: la conclusión es verdad pase lo que pase, así que las hipótesis sobran.</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok" data-allow-warn>theorem audit_ok (total : Nat) (h : total ≤ 100) : ⟪total = total|refl⟫ := rfl
+theorem audit_true (total : Nat) (h : total ≤ 100) : ⟪True|true⟫ := trivial</pre>
+      <script type="application/json">{
+        "refl": "Cualquier cosa es igual a sí misma. Esto es verdad sin mirar <code>h</code>.",
+        "true": "<code>True</code> es la proposición que siempre es verdad. No promete nada."
+      }</script>
+    </figure>
+    <p>Aquí Lean te da una pista: subraya <code class="l">h</code> en amarillo con el aviso <code>Variable name `h` is not explicitly referenced</code>, que quiere decir «la hipótesis h no se usa».</p>
+    <div class="trap">
+      <p><strong>Pista de oro, pero no infalible:</strong> una hipótesis que no se usa sobra, o la conclusión no dice lo que debería. Pero Lean no siempre avisa: si una táctica automática como <code class="l">omega</code> mete la hipótesis en la demostración aunque no haga falta, el aviso desaparece. No dependas solo del amarillo.</p>
+    </div>
+    <div class="q" data-q="m3-l2.true-anyway"></div>
+  </section>
+
+  <section class="step">
+    <h2>Conclusiones debilitadas</h2>
+    <p>La trampa más sutil: la conclusión se parece a lo que querías, pero promete menos. Tres cambios típicos:</p>
+    <ul>
+      <li><code class="l">∀</code> cambiado por <code class="l">∃</code>: «para toda cantidad» pasa a ser «para al menos una».</li>
+      <li><code class="l">∧</code> cambiado por <code class="l">∨</code>: «las dos cosas» pasa a ser «al menos una».</li>
+      <li><code class="l">&lt;</code> cambiado por <code class="l">≤</code>: «estrictamente menor» pasa a ser «menor o igual».</li>
+    </ul>
+    <figure class="lupa">
+<pre class="lean" data-check="ok">theorem fee_le_amount ⟪(amount : Nat)|all⟫ : amount / 100 ≤ amount := by omega
+theorem fee_le_some_amount : ⟪∃ amount : Nat,|some⟫ amount / 100 ≤ amount := ⟪⟨0, by decide⟩|witness⟫</pre>
+      <script type="application/json">{
+        "all": "Un dato: se lee «para toda cantidad». Habla de todas.",
+        "some": "«Existe una cantidad tal que...». Basta con una.",
+        "witness": "El testigo: la IA elige la cantidad 0, comprueba que cumple, y listo. No dice nada de las demás."
+      }</script>
+    </figure>
+    <p>Los dos compilan y se llaman casi igual. El primero habla de todas las cantidades. El segundo solo dice que hay al menos una para la que funciona.</p>
+    <div class="q" data-q="m3-l2.weakened"></div>
+  </section>
+
+  <section class="step">
+    <h2>Tu checklist</h2>
+    <p>Ante cualquier teorema, tres preguntas:</p>
+    <ol>
+      <li>¿Se pueden cumplir todas las hipótesis a la vez? Intenta un ejemplo.</li>
+      <li>¿La conclusión depende de las hipótesis, o sería verdad igualmente?</li>
+      <li>¿La conclusión dice lo que querías, con <code class="l">∀</code> donde toca <code class="l">∀</code>, <code class="l">∧</code> donde toca <code class="l">∧</code> y <code class="l">&lt;</code> donde toca <code class="l">&lt;</code>?</li>
+    </ol>
+    <p>Pruébala con este teorema que podría haber escrito una IA:</p>
+    <div class="q" data-q="m3-l2.checklist-spot"></div>
+  </section>
+
+  <section class="step" data-kind="boss">
+    <h2>El jefe, hoy: la parte que sale gratis</h2>
+    <p>Hoy despejas la primera parte de la conclusión del jefe: <code class="l">RoundsConsistent acc.initialClaim acc.rounds</code>. Aplícale la pregunta 2 de tu checklist: ¿depende de las hipótesis?</p>
+    <p>Esta es la definición real y un teorema sobre ella, del mismo proyecto que el jefe:</p>
+<pre class="lean" data-check="skip">def RoundsConsistent (claim : R) : List (R × R × R) → Prop
+  | [] => True
+  | (c0, cInf, r) :: rs =>
+      whirFoldClaim claim c0 cInf 0 + whirFoldClaim claim c0 cInf 1 = claim
+        ∧ RoundsConsistent (whirFoldClaim claim c0 cInf r) rs
+
+theorem rounds_preserve_invariant (claim : R) (rounds : List (R × R × R)) :
+    RoundsConsistent claim rounds</pre>
+    <p><code class="l">rounds_preserve_invariant</code> no tiene ninguna hipótesis: dice que <code class="l">RoundsConsistent</code> se cumple para cualquier <code class="l">claim</code> y cualquier lista de rondas. La razón es cómo se reconstruye cada ronda: el propio código fabrica una de las piezas a partir de <code class="l">claim</code>, así que la comprobación de cada ronda cuadra siempre, por construcción.</p>
+    <div class="note">
+      <p><strong>Ojo con lo que concluyes.</strong> No es un error y no es falso: está demostrado. Pero como sale gratis para cualquier entrada, no es evidencia de que el verificador acepte solo lo que debe.</p>
+      <p>Y la parte (2) tampoco es nueva entera. Su primera pieza, <code class="l">OpensTo acc.commitment witness</code>, es la hipótesis <code class="l">acc.opens</code> devuelta tal cual: el patrón circular que has visto antes. Lo realmente nuevo es la ecuación final, más la unicidad del testigo, que se apoya en un axioma (<code class="l">commitment_binding</code>, módulo 5).</p>
+    </div>
+    <div class="boss-view"></div>
+    <div class="q" data-q="m3-l2.boss-free"></div>
+  </section>
+
+  <section class="step" data-kind="lab" data-file="Practice/M3/L2.lean">
+    <h2>Laboratorio</h2>
+    <p>Vas a cazar trampas con ayuda de Lean. Sigue los pasos de los comentarios del archivo:</p>
+    <ol>
+      <li>Pon el cursor en los <code class="l">#eval</code> del paso 2: comprueban si un <code class="l">fee</code> concreto cumple las dos hipótesis de <code class="l">fee_bound</code>.</li>
+      <li>En el paso 3, pasa el ratón por el subrayado amarillo de <code class="l">h</code>.</li>
+    </ol>
+    <div class="q" data-q="m3-l2.lab-decide"></div>
+    <div class="q" data-q="m3-l2.lab-warning"></div>
+  </section>
+
+  <section class="step" data-kind="wrap">
+    <h2>Llévate esto</h2>
+    <ul class="takeaways">
+      <li>Hipótesis imposibles, que chocan entre sí o que ya son la conclusión dejan el teorema vacío, aunque Lean lo acepte.</li>
+      <li>Una conclusión que se cumple de todas formas, o que cambia <code class="l">∀</code> por <code class="l">∃</code>, <code class="l">∧</code> por <code class="l">∨</code> o <code class="l">&lt;</code> por <code class="l">≤</code>, promete menos de lo que parece.</li>
+      <li>Tu checklist: ¿se cumplen las hipótesis a la vez?, ¿la conclusión depende de ellas?, ¿dice lo que querías?</li>
+    </ul>
+  </section>
+
+</main>
+<script src="../catalog.js"></script>
+<script src="../assets/boss.js"></script>
+<script src="../questions/m3-l2.js"></script>
+<script src="../assets/math.js"></script>
+<script src="../assets/engine.js"></script>
+</body>
+</html>

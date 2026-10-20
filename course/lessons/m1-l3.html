@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>1.3 Si... entonces (y si y solo si) | Leer Lean</title>
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="lesson" data-lesson="m1-l3" data-base="../">
+<main id="lesson">
+
+  <section class="step" data-kind="cover">
+    <h1>Si... entonces (y si y solo si)</h1>
+    <p class="lede">En una frase: «si A, entonces B» solo es falso cuando A pasa y B no; y si A no puede pasar nunca, la frase es verdad pero no dice nada.</p>
+    <div class="why">
+      <p><strong>Por qué te importa:</strong> casi todos los teoremas tienen la forma «si pasa esto, entonces pasa aquello». Si la parte del «si» es imposible, Lean acepta el teorema aunque la conclusión sea absurda. Es la trampa más fácil de colar, y de las más difíciles de ver.</p>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Una promesa con condición</h2>
+    <p>Te digo: «si apruebas, te invito a cenar». ¿Cuándo he roto la promesa? Solo en un caso: apruebas y no te invito.</p>
+    <p>Si suspendes, la promesa no se rompe, te invite o no. La condición no se cumplió, así que no te debo nada.</p>
+    <p>En lógica, esa promesa se escribe <code class="l">A → B</code> y se lee «si A, entonces B». A se llama <strong>hipótesis</strong> (la condición) y B, <strong>conclusión</strong> (lo prometido).</p>
+    <div class="table-scroll">
+      <table class="truth">
+        <thead><tr><th>A (apruebas)</th><th>B (te invito)</th><th>A → B</th></tr></thead>
+        <tbody>
+          <tr><td class="T">V</td><td class="T">V</td><td class="T">V</td></tr>
+          <tr><td class="T">V</td><td class="F">F</td><td class="F">F</td></tr>
+          <tr><td class="F">F</td><td class="T">V</td><td class="T">V</td></tr>
+          <tr><td class="F">F</td><td class="F">F</td><td class="T">V</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Lean opina exactamente lo mismo. Toca las piezas:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok">#eval decide (⟪2 + 2 = 4|a1⟫ ⟪→|arrow⟫ ⟪1 = 2|b1⟫)  --> false
+#eval decide (⟪2 + 2 = 5|a2⟫ → 1 = 2)  --> true
+#eval decide (2 + 2 = 5 → 1 = 1)  --> true</pre>
+      <script type="application/json">{
+        "a1": "La hipótesis de la primera línea: 2 + 2 = 4. Es verdadera.",
+        "arrow": "<code>→</code> se lee «si... entonces». Todo lo que va a su izquierda es la hipótesis; lo de la derecha, la conclusión.",
+        "b1": "La conclusión: 1 = 2, falsa. Hipótesis verdadera y conclusión falsa: la única forma de romper la promesa. Por eso Lean responde <code>false</code>.",
+        "a2": "Aquí la hipótesis es 2 + 2 = 5, que es falsa. La condición no se cumple, así que la promesa no se puede romper: Lean responde <code>true</code>, diga lo que diga la conclusión."
+      }</script>
+    </figure>
+    <div class="q" data-q="m1-l3.umbrella"></div>
+  </section>
+
+  <section class="step">
+    <h2>Una hipótesis imposible lo demuestra todo</h2>
+    <p>Ahora lo que más importa a un auditor. Un teorema que podría escribir una IA sobre la comisión de un contrato:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok">theorem fee_capped ⟪(fee : Nat)|arg⟫ ⟪(h : fee &lt; 0)|hyp⟫ :
+    ⟪fee = 1000000|concl⟫ := by ⟪omega|tac⟫</pre>
+      <script type="application/json">{
+        "arg": "<code>fee</code> es un número natural: 0, 1, 2, 3... Los naturales nunca son negativos.",
+        "hyp": "Una hipótesis, la parte del «si». Se lee «si <code>fee</code> es menor que 0». Para un natural eso no pasa nunca: es una hipótesis imposible.",
+        "concl": "La conclusión: «la comisión es exactamente un millón». Un disparate.",
+        "tac": "<code>omega</code> es una táctica que razona con sumas y desigualdades. No necesitas entenderla: solo fíjate en que Lean la acepta."
+      }</script>
+    </figure>
+    <p>Lean lo acepta. Se lee «si <code class="l">fee &lt; 0</code>, entonces <code class="l">fee = 1000000</code>», y como la hipótesis no se cumple nunca, la promesa no se puede romper (filas 3 y 4 de la tabla). Quita la hipótesis y Lean lo rechaza:</p>
+<pre class="lean" data-check="error" data-error="omega could not prove the goal">theorem fee_capped' (fee : Nat) :
+    fee = 1000000 := by omega</pre>
+    <p>Es la regla <em>de lo falso, cualquier cosa</em>: a partir de algo imposible se «demuestra» lo que quieras.</p>
+    <div class="trap">
+      <p><strong>Regla de auditor:</strong> antes de leer la conclusión, pregúntate si las hipótesis se pueden cumplir. Si no se pueden, el teorema está demostrado pero no dice nada sobre tu contrato.</p>
+    </div>
+    <div class="q" data-q="m1-l3.explosion"></div>
+  </section>
+
+  <section class="step">
+    <h2>Leer las flechas: dirección y cadenas</h2>
+    <p>«Si llueve, el suelo está mojado» es verdad. Pero «si el suelo está mojado, llueve» es otra frase distinta: puede que alguien haya regado. Darle la vuelta a la flecha cambia lo que se promete.</p>
+<pre class="lean" data-check="ok">#eval decide (1 = 2 → 1 = 1)  --> true
+#eval decide (1 = 1 → 1 = 2)  --> false</pre>
+    <p>A veces verás varias flechas seguidas: <code class="l">A → B → C</code>. Se lee «si A, y además si B, entonces C». Todo lo que hay antes de la última flecha son hipótesis; lo último es la conclusión.</p>
+<pre class="lean" data-check="ok">#eval decide (1 = 1 → 2 = 2 → 3 = 4)  --> false</pre>
+    <p>Aquí las dos hipótesis son verdad y la conclusión, 3 = 4, no. Promesa rota: <code class="l">false</code>.</p>
+    <div class="q" data-q="m1-l3.converse"></div>
+  </section>
+
+  <section class="step">
+    <h2>Si y solo si: la flecha en los dos sentidos</h2>
+    <p>«Una cuenta está vacía <strong>si y solo si</strong> su saldo es 0» promete dos cosas: si está vacía, el saldo es 0; y si el saldo es 0, está vacía. En Lean se escribe <code class="l">A ↔ B</code>.</p>
+    <p>Es verdad cuando A y B valen lo mismo: las dos verdaderas o las dos falsas.</p>
+    <div class="table-scroll">
+      <table class="truth">
+        <thead><tr><th>A</th><th>B</th><th>A ↔ B</th></tr></thead>
+        <tbody>
+          <tr><td class="T">V</td><td class="T">V</td><td class="T">V</td></tr>
+          <tr><td class="T">V</td><td class="F">F</td><td class="F">F</td></tr>
+          <tr><td class="F">F</td><td class="T">V</td><td class="F">F</td></tr>
+          <tr><td class="F">F</td><td class="F">F</td><td class="T">V</td></tr>
+        </tbody>
+      </table>
+    </div>
+<pre class="lean" data-check="ok">#eval decide (2 = 2 ↔ 5 &lt; 1)  --> false
+#eval decide (2 = 3 ↔ 5 &lt; 1)  --> true</pre>
+    <div class="trap">
+      <p><strong>Ojo:</strong> <code class="l">↔</code> promete más que <code class="l">→</code>. Si pediste «si y solo si» y la IA te entrega solo una flecha, falta la mitad de la promesa.</p>
+    </div>
+    <div class="q" data-q="m1-l3.iff-stronger"></div>
+  </section>
+
+  <section class="step" data-kind="boss">
+    <h2>El jefe, hoy</h2>
+    <p>Hoy despejas la flecha <code class="l">→</code> del jefe. Mira la línea donde brilla:</p>
+    <p><code class="l">OpensTo acc.commitment w' → w' = witness</code></p>
+    <p>Un <strong>compromiso</strong> es como un sobre cerrado: te comprometes con un valor sin enseñarlo. <strong>Abrirlo</strong> es mostrar lo que había dentro y probar que es lo que se cerró.</p>
+    <p>A la izquierda de la flecha, la hipótesis: «si <code>w'</code> también abre el compromiso». A la derecha, la conclusión: «entonces <code>w'</code> es el mismo testigo». Lo que va justo delante, lo despejas en la lección siguiente.</p>
+    <div class="boss-view"></div>
+    <div class="q" data-q="m1-l3.boss-arrow"></div>
+  </section>
+
+  <section class="step" data-kind="lab" data-file="Practice/M1/L3.lean">
+    <h2>Laboratorio</h2>
+    <ol>
+      <li>Abre el archivo y pon el cursor en cada línea del <strong>Paso 1</strong>. Mira la respuesta en el panel Lean Infoview.</li>
+      <li>En el <strong>Paso 2</strong> está <code class="l">fee_capped</code>. Comprueba que no sale nada en rojo.</li>
+      <li>Borra <code class="l">(h : fee &lt; 0)</code> y mira qué pasa. Luego deshazlo con Ctrl+Z.</li>
+    </ol>
+    <div class="q" data-q="m1-l3.lab-false-line"></div>
+    <div class="q" data-q="m1-l3.lab-remove-hyp"></div>
+  </section>
+
+  <section class="step" data-kind="wrap">
+    <h2>Llévate esto</h2>
+    <ul class="takeaways">
+      <li><code class="l">A → B</code> solo es falso cuando A pasa y B no. Darle la vuelta a la flecha es otra promesa.</li>
+      <li>Con una hipótesis imposible, Lean acepta cualquier conclusión. Comprueba siempre que las hipótesis se puedan cumplir.</li>
+      <li><code class="l">A ↔ B</code> son dos flechas a la vez: promete más que <code class="l">A → B</code>.</li>
+    </ul>
+  </section>
+
+</main>
+<script src="../catalog.js"></script>
+<script src="../assets/boss.js"></script>
+<script src="../questions/m1-l3.js"></script>
+<script src="../assets/math.js"></script>
+<script src="../assets/engine.js"></script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>1.2 Y, o, no | Leer Lean</title>
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="lesson" data-lesson="m1-l2" data-base="../">
+<main id="lesson">
+
+  <section class="step" data-kind="cover">
+    <h1>Y, o, no</h1>
+    <p class="lede">En una frase: <code class="l">∧</code> pide que se cumplan las dos cosas, <code class="l">∨</code> que se cumpla al menos una, y <code class="l">¬</code> le da la vuelta a una proposición.</p>
+    <div class="why">
+      <p><strong>Por qué te importa:</strong> cambiar un <code class="l">∧</code> por un <code class="l">∨</code> hace que un teorema prometa muchísimo menos, y es un cambio de un solo carácter. Hay que verlo a la primera.</p>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>∧: las dos a la vez</h2>
+    <p><code class="l">A ∧ B</code> se lee «A y B». Es verdad solo si A es verdad <strong>y</strong> B también. Con que falle una, falla todo.</p>
+    <div class="analogy">
+      <p>Para entrar a una banda necesitas nivel 60 <strong>y</strong> la llave de la mazmorra. Con nivel 60 y sin llave, te quedas fuera.</p>
+    </div>
+    <p>Una <strong>tabla de verdad</strong> recoge todos los casos posibles. V es verdadero, F es falso:</p>
+    <div class="table-scroll">
+      <table class="truth">
+        <tr><th>A</th><th>B</th><th>A ∧ B</th></tr>
+        <tr><td class="T">V</td><td class="T">V</td><td class="T">V</td></tr>
+        <tr><td class="T">V</td><td class="F">F</td><td class="F">F</td></tr>
+        <tr><td class="F">F</td><td class="T">V</td><td class="F">F</td></tr>
+        <tr><td class="F">F</td><td class="F">F</td><td class="F">F</td></tr>
+      </table>
+    </div>
+<pre class="lean" data-check="ok">#eval decide (2 &lt; 3 ∧ 3 &lt; 4)  --> true
+#eval decide (2 &lt; 3 ∧ 4 &lt; 3)  --> false</pre>
+    <div class="q" data-q="m1-l2.and-table"></div>
+  </section>
+
+  <section class="step">
+    <h2>∨: al menos una</h2>
+    <p><code class="l">A ∨ B</code> se lee «A o B». Es verdad si se cumple A, si se cumple B, <strong>o si se cumplen las dos</strong>. Solo es falso cuando fallan las dos.</p>
+    <div class="note">
+      <p>En la vida diaria, «¿café o té?» suele querer decir uno de los dos, no ambos. En lógica no: el «o» incluye el caso de las dos. Si te dan café y té, la promesa «café o té» se ha cumplido.</p>
+    </div>
+    <div class="table-scroll">
+      <table class="truth">
+        <tr><th>A</th><th>B</th><th>A ∨ B</th></tr>
+        <tr><td class="T">V</td><td class="T">V</td><td class="T">V</td></tr>
+        <tr><td class="T">V</td><td class="F">F</td><td class="T">V</td></tr>
+        <tr><td class="F">F</td><td class="T">V</td><td class="T">V</td></tr>
+        <tr><td class="F">F</td><td class="F">F</td><td class="F">F</td></tr>
+      </table>
+    </div>
+<pre class="lean" data-check="ok">#eval decide (2 &lt; 3 ∨ 4 &lt; 3)  --> true
+#eval decide (2 &lt; 3 ∨ 3 &lt; 4)  --> true
+#eval decide (4 &lt; 3 ∨ 5 &lt; 3)  --> false</pre>
+    <div class="q" data-q="m1-l2.or-inclusive"></div>
+  </section>
+
+  <section class="step">
+    <h2>¬: lo contrario</h2>
+    <p><code class="l">¬ A</code> se lee «no A». Si A es verdad, <code class="l">¬ A</code> es falso, y al revés. El <code class="l">≠</code> de la lección anterior es justo esto: <code class="l">a ≠ b</code> significa <code class="l">¬ (a = b)</code>.</p>
+    <div class="table-scroll">
+      <table class="truth">
+        <tr><th>A</th><th>¬ A</th></tr>
+        <tr><td class="T">V</td><td class="F">F</td></tr>
+        <tr><td class="F">F</td><td class="T">V</td></tr>
+      </table>
+    </div>
+    <p>Cuidado con hasta dónde llega el <code class="l">¬</code>. Sin paréntesis, abarca la comparación que tiene delante y se para en el siguiente <code class="l">∧</code> o <code class="l">∨</code>:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok">#eval decide (⟪¬ 1 = 2 ∧ 1 = 2|short⟫)  --> false
+#eval decide (⟪¬ (1 = 2 ∧ 1 = 2)|long⟫)  --> true</pre>
+      <script type="application/json">{
+        "short": "Se lee «(no 1 = 2) y (1 = 2)». El <code>¬</code> solo niega <code>1 = 2</code>. La segunda parte, <code>1 = 2</code>, es falsa, así que el <code>∧</code> sale falso.",
+        "long": "Con paréntesis, el <code>¬</code> niega todo el <code>∧</code>: «no es verdad que (1 = 2 y 1 = 2)». Eso sí es verdad."
+      }</script>
+    </figure>
+    <div class="trap">
+      <p><strong>Ojo de auditor:</strong> los paréntesis cambian el significado. Cuando veas un <code class="l">¬</code>, pregúntate exactamente qué está negando.</p>
+    </div>
+    <div class="q" data-q="m1-l2.not-precedence"></div>
+  </section>
+
+  <section class="step">
+    <h2>Negar un «y», negar un «o»</h2>
+    <p>«No es verdad que tengas nivel 60 y la llave» significa: te falta el nivel, o te falta la llave, o las dos. <strong>Negar un «y» da un «o» de negaciones.</strong> Y al revés: negar un «o» da un «y» de negaciones.</p>
+    <p>Son las <strong>leyes de De Morgan</strong>, un teorema: valen para cualquier A y B. La tabla recorre los cuatro casos posibles y las dos últimas columnas salen idénticas. Una tabla con todos los casos es una demostración: no queda nada sin mirar.</p>
+    <div class="table-scroll">
+      <table class="truth">
+        <tr><th>A</th><th>B</th><th>¬ (A ∧ B)</th><th>¬ A ∨ ¬ B</th></tr>
+        <tr><td class="T">V</td><td class="T">V</td><td class="F">F</td><td class="F">F</td></tr>
+        <tr><td class="T">V</td><td class="F">F</td><td class="T">V</td><td class="T">V</td></tr>
+        <tr><td class="F">F</td><td class="T">V</td><td class="T">V</td><td class="T">V</td></tr>
+        <tr><td class="F">F</td><td class="F">F</td><td class="T">V</td><td class="T">V</td></tr>
+      </table>
+    </div>
+    <p>En Lean, con un ejemplo concreto:</p>
+<pre class="lean" data-check="ok">#eval decide (¬ (1 = 1 ∧ 2 = 3))  --> true
+#eval decide (¬ (1 = 1) ∨ ¬ (2 = 3))  --> true</pre>
+    <div class="q" data-q="m1-l2.de-morgan"></div>
+  </section>
+
+  <section class="step">
+    <h2>La trampa del «o»</h2>
+    <p>Imagina que pides a la IA un teorema sobre una bóveda (un contrato que guarda depósitos). Quieres que se cumplan <strong>las dos</strong> cosas: que nunca se pague más de lo depositado, y que la comisión sea como mucho 100.</p>
+    <p>Un <code class="l">∨</code> en lugar de un <code class="l">∧</code> convierte esa promesa en «al menos una de las dos». Basta con que la comisión sea pequeña para que el teorema sea verdad, aunque la bóveda pague de más.</p>
+    <div class="trap">
+      <p><strong>Regla de auditor:</strong> cuando quieras varias garantías a la vez, busca <code class="l">∧</code> entre ellas. Un <code class="l">∨</code> en una conclusión casi siempre promete menos de lo que parece.</p>
+    </div>
+    <div class="q" data-q="m1-l2.spot-weak-or"></div>
+  </section>
+
+  <section class="step" data-kind="boss">
+    <h2>El jefe, hoy</h2>
+    <p>Hoy despejas los tres <code class="l">∧</code> del jefe. Unen las partes de su conclusión: el teorema promete todas esas cosas a la vez, no una u otra.</p>
+    <p>Esto es justo lo que quieres ver: si alguno fuera un <code class="l">∨</code>, el jefe prometería bastante menos.</p>
+    <div class="boss-view"></div>
+    <div class="q" data-q="m1-l2.boss-and"></div>
+  </section>
+
+  <section class="step" data-kind="lab" data-file="Practice/M1/L2.lean">
+    <h2>Laboratorio</h2>
+    <p>Abre el archivo y ve paso a paso con el cursor y el panel:</p>
+    <ol>
+      <li>Comprueba con <code class="l">#eval decide</code> varias frases con <code class="l">∧</code>, <code class="l">∨</code> y <code class="l">¬</code>.</li>
+      <li>Quita y pon paréntesis alrededor de un <code class="l">¬</code> y mira cómo cambia la respuesta.</li>
+    </ol>
+    <div class="q" data-q="m1-l2.lab-excluded-middle"></div>
+    <div class="q" data-q="m1-l2.lab-parens"></div>
+  </section>
+
+  <section class="step" data-kind="wrap">
+    <h2>Llévate esto</h2>
+    <ul class="takeaways">
+      <li><code class="l">∧</code> exige las dos; <code class="l">∨</code> se conforma con una (y también vale con las dos).</li>
+      <li><code class="l">¬</code> abarca la comparación que tiene delante y se para en el siguiente <code class="l">∧</code> o <code class="l">∨</code>; los paréntesis deciden hasta dónde llega.</li>
+      <li>Negar un «y» da un «o» de negaciones, y al revés. Un <code class="l">∨</code> en una conclusión suele prometer menos.</li>
+    </ul>
+  </section>
+
+</main>
+<script src="../catalog.js"></script>
+<script src="../assets/boss.js"></script>
+<script src="../questions/m1-l2.js"></script>
+<script src="../assets/math.js"></script>
+<script src="../assets/engine.js"></script>
+</body>
+</html>

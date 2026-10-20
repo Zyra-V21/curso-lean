@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leer Lean</title>
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="index" data-base="">
+<main class="page">
+  <section class="hero">
+    <h1>Leer Lean</h1>
+    <p class="lede">De cero a auditor. La IA escribe las demostraciones, Lean las comprueba, y tú aprendes a leer qué se ha demostrado de verdad.</p>
+    <div id="course-goal"></div>
+    <p class="infoview-caption">Así enseña Lean lo que falta por demostrar: arriba lo que ya tienes (hipótesis), abajo, tras <code>⊢</code>, lo que falta. Cada lección que domines añade una hipótesis.</p>
+  </section>
+
+  <div id="next-step"></div>
+  <div id="extras"></div>
+
+  <h2 class="section-title">Tu jefe final</h2>
+  <p>Este es el teorema principal que una IA escribió para un verificador WHIR real (WHIR es un protocolo criptográfico para comprobar pruebas). Hoy es niebla. Cada lección despeja las piezas que ya sabes leer; al final del curso podrás decir qué promete de verdad y qué no.</p>
+  <div id="boss" class="boss-view"></div>
+
+  <h2 class="section-title">El mapa</h2>
+  <p class="muted">Puedes abrir cualquier lección, pero el orden importa: cada una usa lo de las anteriores. Las lecciones marcadas «La prepara tu tutor» se construyen cuando llegues, adaptadas a lo que te haya costado.</p>
+  <div id="modules"></div>
+
+  <section class="tutor-box">
+    <h3>Tu tutor</h3>
+    <p>Todo lo que respondes aquí se guarda en <code>tutor/events.jsonl</code>. Cuando quieras ayuda, abre una terminal en la carpeta del curso, arranca Claude y escribe <strong>tutor</strong>: verá tus respuestas, tus notas y lo que te cuesta, y te lo explicará de otra forma o preparará las siguientes lecciones.</p>
+  </section>
+</main>
+<script src="catalog.js"></script>
+<script src="assets/boss.js"></script>
+<script src="assets/engine.js"></script>
+</body>
+</html>

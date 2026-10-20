@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>T1 Qué día será dentro de 100 días | Leer Lean</title>
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="lesson" data-lesson="t1" data-base="../">
+<main id="lesson">
+
+  <section class="step" data-kind="cover">
+    <h1>Qué día será dentro de 100 días</h1>
+    <p class="lede">En una frase: para saber qué día de la semana cae dentro de muchos días no hace falta contarlos. Basta con dividir entre 7 y mirar lo que sobra.</p>
+    <div class="why">
+      <p><strong>Por qué te importa:</strong> «lo que sobra al dividir» es la base de la aritmética del reloj, la que usan pruebas criptográficas como la del jefe final. Y Lean la escribe con dos símbolos que vas a ver a menudo: <code class="l">/</code> y <code class="l">%</code>.</p>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>El atajo de las semanas</h2>
+    <p>Hoy es lunes. ¿Qué día será dentro de 100 días? Contarlos con los dedos es un rollo, y es fácil equivocarse.</p>
+    <p>Pero hay un atajo: los días de la semana se repiten cada 7. Dentro de 7 días vuelve a ser lunes. Dentro de 14, también. Dentro de 70, también.</p>
+    <figure class="fig">
+      <svg viewBox="0 0 260 250" role="img" aria-label="Los siete días de la semana en círculo: después del domingo vuelve el lunes">
+        <g class="fig-day is-start"><circle cx="130" cy="35" r="25"/><text x="130" y="35">lun</text></g>
+        <g class="fig-day"><circle cx="204" cy="71" r="25"/><text x="204" y="71">mar</text></g>
+        <g class="fig-day is-end"><circle cx="223" cy="151" r="25"/><text x="223" y="151">mié</text></g>
+        <g class="fig-day"><circle cx="171" cy="216" r="25"/><text x="171" y="216">jue</text></g>
+        <g class="fig-day"><circle cx="89" cy="216" r="25"/><text x="89" y="216">vie</text></g>
+        <g class="fig-day"><circle cx="37" cy="151" r="25"/><text x="37" y="151">sáb</text></g>
+        <g class="fig-day"><circle cx="56" cy="71" r="25"/><text x="56" y="71">dom</text></g>
+        <text class="fig-center" x="130" y="122">cada 7 días,</text>
+        <text class="fig-center" x="130" y="142">vuelta a empezar</text>
+      </svg>
+      <figcaption>Como las horas de un reloj, pero con 7 días en vez de 12 horas.</figcaption>
+    </figure>
+    <p>Así que de los 100 días solo importan los que <strong>sobran</strong> después de quitar todas las semanas completas.</p>
+    <div class="q" data-q="t1.seven-days"></div>
+  </section>
+
+  <section class="step">
+    <h2>Dividir con resto</h2>
+    <p>Repartes 23 caramelos en bolsas de 5. Llenas 4 bolsas (4 · 5 = 20) y te sobran 3.</p>
+    <figure class="fig">
+      <svg viewBox="0 0 330 140" role="img" aria-label="23 puntos en filas de 5: cuatro filas completas y una fila con 3">
+        <g class="dots-full">
+          <circle cx="18" cy="16" r="9"/><circle cx="44" cy="16" r="9"/><circle cx="70" cy="16" r="9"/><circle cx="96" cy="16" r="9"/><circle cx="122" cy="16" r="9"/>
+          <circle cx="18" cy="42" r="9"/><circle cx="44" cy="42" r="9"/><circle cx="70" cy="42" r="9"/><circle cx="96" cy="42" r="9"/><circle cx="122" cy="42" r="9"/>
+          <circle cx="18" cy="68" r="9"/><circle cx="44" cy="68" r="9"/><circle cx="70" cy="68" r="9"/><circle cx="96" cy="68" r="9"/><circle cx="122" cy="68" r="9"/>
+          <circle cx="18" cy="94" r="9"/><circle cx="44" cy="94" r="9"/><circle cx="70" cy="94" r="9"/><circle cx="96" cy="94" r="9"/><circle cx="122" cy="94" r="9"/>
+        </g>
+        <g class="dots-rest">
+          <circle cx="18" cy="120" r="9"/><circle cx="44" cy="120" r="9"/><circle cx="70" cy="120" r="9"/>
+        </g>
+        <text class="fig-label" x="150" y="55">4 bolsas llenas: el cociente</text>
+        <text class="fig-label is-rest" x="100" y="120">sobran 3: el resto</text>
+      </svg>
+    </figure>
+    <ul>
+      <li>El <strong>cociente</strong> es cuántas veces cabe entero: 4.</li>
+      <li>El <strong>resto</strong> es lo que sobra: 3.</li>
+      <li>Todo junto se escribe así: 23 = 5 · 4 + 3.</li>
+    </ul>
+    <p>Fíjate en una cosa: el resto siempre es <strong>menor</strong> que 5. Si sobraran 5 o más, llenarías otra bolsa.</p>
+    <p>Prueba tú. Escribe el cociente y el resto (si no te sale, «No lo sé» te enseña cómo se hace):</p>
+    <div class="q" data-q="t1.divmod-a"></div>
+  </section>
+
+  <section class="step">
+    <h2>El teorema de la división</h2>
+    <p>Lo que acabas de hacer funciona siempre. Es un teorema:</p>
+    <div class="note">
+      <p><strong>Teorema de la división.</strong> Si divides un número natural <em>a</em> entre un número <em>b</em> mayor que 0, hay un único cociente <em>q</em> y un único resto <em>r</em> tales que <em>a</em> = <em>b</em> · <em>q</em> + <em>r</em>, con <em>r</em> menor que <em>b</em>.</p>
+    </div>
+    <p>Por qué es verdad, con el dibujo de antes: pones <em>a</em> puntos en filas de <em>b</em>. Llenas todas las filas que puedas: ese es el cociente. La última fila se queda a medias, con menos de <em>b</em> puntos: ese es el resto.</p>
+    <p>Y por qué es <strong>único</strong>: si dejaras una fila sin llenar, te sobrarían <em>b</em> puntos o más, y eso ya no es un resto válido.</p>
+    <p>¿Y por qué <em>b</em> mayor que 0? Porque no se pueden hacer bolsas de 0 caramelos.</p>
+    <div class="q" data-q="t1.remainder-bound"></div>
+  </section>
+
+  <section class="step">
+    <h2>Vuelta a los 100 días</h2>
+    <p>Ahora ya puedes resolverlo sin contar:</p>
+    <ol>
+      <li>Divides 100 entre 7: 100 = 7 · 14 + 2.</li>
+      <li>Las 14 semanas completas te dejan otra vez en lunes.</li>
+      <li>Quedan 2 días más: martes, miércoles.</li>
+    </ol>
+    <p>Dentro de 100 días será <strong>miércoles</strong>.</p>
+    <div class="q" data-q="t1.days-a"></div>
+  </section>
+
+  <section class="step">
+    <h2>En Lean: / y %</h2>
+    <p>Lean tiene un símbolo para cada mitad de la división. Toca las piezas subrayadas:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok">⟪#eval|cmd⟫ ⟪100 / 7|div⟫  --> 14
+#eval ⟪100 % 7|mod⟫  --> 2
+#eval ⟪7 / 2|half⟫  --> 3</pre>
+      <script type="application/json">{
+        "cmd": "<code>#eval</code>: calcula esto y enséñame el resultado.",
+        "div": "Entre números naturales, <code>/</code> da el <strong>cociente</strong>: cuántas veces cabe entero.",
+        "mod": "<code>%</code> da el <strong>resto</strong>: lo que sobra. Se lee «módulo».",
+        "half": "7 entre 2 es 3, no 3,5: los números naturales no tienen decimales, así que <code>/</code> se queda con el cociente."
+      }</script>
+    </figure>
+    <div class="trap">
+      <p>Ojo con esto al leer código de una IA: en una calculadora, 7 / 2 es 3,5; en Lean, entre naturales, es 3. Cuando veas <code class="l">/</code> con naturales, piensa en «cociente».</p>
+    </div>
+    <div class="q" data-q="t1.lean-div"></div>
+  </section>
+
+  <section class="step">
+    <h2>El teorema, en Lean</h2>
+    <p>Un caso concreto se demuestra haciendo la cuenta, como en la lección 0.1:</p>
+<pre class="lean" data-check="ok">theorem hundred_days : 100 % 7 = 2 := by decide</pre>
+    <p>Y el teorema general ya viene dentro de Lean, con el nombre <code class="l">Nat.div_add_mod</code>. Aquí lo usamos para demostrar una versión con nombre propio. Toca las piezas:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok">⟪theorem|kw⟫ div_with_remainder ⟪(m n : Nat)|args⟫ :
+    ⟪n * (m / n)|qpart⟫ ⟪+ m % n|rpart⟫ ⟪= m|back⟫ := ⟪Nat.div_add_mod m n|proof⟫</pre>
+      <script type="application/json">{
+        "kw": "<code>theorem</code>: aquí empieza un teorema.",
+        "args": "Para dos números naturales cualesquiera, que llamamos <code>m</code> y <code>n</code>. <code>Nat</code> son los naturales: 0, 1, 2...",
+        "qpart": "El divisor por el cociente: <em>b</em> · <em>q</em>.",
+        "rpart": "Más el resto: + <em>r</em>.",
+        "back": "Da el número del principio: <em>a</em> = <em>b</em> · <em>q</em> + <em>r</em>.",
+        "proof": "La demostración: usar el teorema que ya trae Lean. Lean comprueba que encaja con el enunciado."
+      }</script>
+    </figure>
+    <p>Ahora, lectura de auditor: este enunciado <strong>no dice</strong> que el resto sea menor que <code class="l">n</code>. Esa parte es otro teorema de Lean, <code class="l">Nat.mod_lt</code>, que además pide que <code class="l">n</code> sea mayor que 0. Un enunciado dice exactamente lo que dice, ni más ni menos.</p>
+    <p>¿Y si <code class="l">n</code> es 0? Este enunciado no lo prohíbe, y aun así es verdad, porque Lean le da un valor a dividir entre 0: <code class="l">7 / 0</code> da 0 y <code class="l">7 % 0</code> da 7. Es un acuerdo de Lean, no de las mates de clase; lo verás con calma en el módulo de auditoría.</p>
+    <div class="q" data-q="t1.read-thm"></div>
+  </section>
+
+  <section class="step" data-kind="lab" data-file="Practice/Mates/T1.lean">
+    <h2>Laboratorio</h2>
+    <p>Abre el archivo y ve paso a paso. Son cuatro pasos cortos; en resumen:</p>
+    <ol>
+      <li>Mira el cociente y el resto de 100 entre 7.</li>
+      <li>Haz lo mismo con 365, los días de un año.</li>
+      <li>Cambia el teorema para que sea falso y mira el rojo. Luego <code>Ctrl+Z</code>.</li>
+    </ol>
+    <div class="q" data-q="t1.lab-365"></div>
+  </section>
+
+  <section class="step" data-kind="wrap">
+    <h2>Llévate esto</h2>
+    <ul class="takeaways">
+      <li>Dividir con resto: <em>a</em> = <em>b</em> · <em>q</em> + <em>r</em>, con el resto <em>r</em> menor que <em>b</em>. Para los días de la semana solo importa el resto entre 7.</li>
+      <li>En Lean, entre naturales, <code class="l">/</code> da el cociente (7 / 2 es 3) y <code class="l">%</code> da el resto.</li>
+      <li>Un enunciado dice exactamente lo que dice: <code class="l">Nat.div_add_mod</code> no habla de que el resto sea pequeño.</li>
+    </ul>
+  </section>
+
+</main>
+<script src="../catalog.js"></script>
+<script src="../questions/t1.js"></script>
+<script src="../assets/math.js"></script>
+<script src="../assets/engine.js"></script>
+</body>
+</html>

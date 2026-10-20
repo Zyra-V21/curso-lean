@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0.1 Qué es Lean y qué te toca a ti | Leer Lean</title>
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="lesson" data-lesson="m0-l1" data-base="../">
+<main id="lesson">
+
+  <section class="step" data-kind="cover">
+    <h1>Qué es Lean y qué te toca a ti</h1>
+    <p class="lede">En una frase: Lean es un programa que comprueba demostraciones paso a paso, sin cansarse ni saltarse ninguno, y tu trabajo es comprobar que lo demostrado es lo que querías.</p>
+    <div class="why">
+      <p><strong>Por qué te importa:</strong> la IA puede escribir miles de líneas de demostración, y Lean comprueba cada paso de todas ellas. Pero si la IA demostró la cosa equivocada, Lean no te avisa. Eso solo lo puedes ver tú.</p>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Un árbitro que no se cansa</h2>
+    <p>Una <strong>demostración</strong> es una cadena de pasos donde cada paso sale de los anteriores siguiendo reglas. Si un solo paso está mal, la demostración entera no vale.</p>
+    <p>Las personas que revisan demostraciones largas se cansan y se les escapan cosas. Lean no: revisa cada paso, y si uno no encaja, se niega a aceptarla.</p>
+    <div class="analogy">
+      <p>Piensa en el servidor de un juego online. Da igual lo que diga tu cliente: si intentas un movimiento imposible, el servidor no lo acepta. Lean es ese servidor, pero para las matemáticas.</p>
+    </div>
+    <p>Así se ve un teorema en Lean. Toca las piezas subrayadas:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok">⟪theorem|kw⟫ ⟪two_plus_two|name⟫ : ⟪2 + 2 = 4|stmt⟫ ⟪:= by|border⟫ ⟪decide|proof⟫</pre>
+      <script type="application/json">{
+        "kw": "<code>theorem</code> anuncia un teorema: una afirmación que se va a demostrar.",
+        "name": "El nombre del teorema. Lo pone quien lo escribe. Es solo una etiqueta: no demuestra nada.",
+        "stmt": "Lo que se afirma: el <strong>enunciado</strong>. Aquí, que 2 + 2 es igual a 4.",
+        "border": "La frontera. Antes de <code>:= by</code> está lo que se promete. Después, cómo se demuestra.",
+        "proof": "La demostración. <code>decide</code> le dice a Lean: «calcúlalo tú y comprueba que sale verdad». Lean lo calcula y lo acepta."
+      }</script>
+    </figure>
+    <div class="q" data-q="m0-l1.checker-rejects"></div>
+  </section>
+
+  <section class="step">
+    <h2>Lean no lee mentes</h2>
+    <p>Lean comprueba que la demostración demuestra <em>el enunciado tal y como está escrito</em>. No sabe qué querías tú.</p>
+    <p>Imagina que le pides a la IA: «demuéstrame que la comisión de mi contrato nunca pasa de 100». Y la IA te devuelve esto:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok">⟪theorem|kw⟫ ⟪fee_ok|name⟫ : ⟪100 ≤ 100|stmt⟫ := by decide</pre>
+      <script type="application/json">{
+        "kw": "Un teorema, como antes.",
+        "name": "Se llama <code>fee_ok</code> («comisión correcta»). Suena bien. Pero el nombre no demuestra nada.",
+        "stmt": "Lo que de verdad afirma: que 100 es menor o igual que 100 (<code>≤</code> es «menor o igual»). Es verdad, pero no menciona la comisión en ningún sitio."
+      }</script>
+    </figure>
+    <p>Lean lo acepta sin quejarse. Es correcto: 100 sí es menor o igual que 100. El problema es que eso no era lo que pediste.</p>
+    <div class="q" data-q="m0-l1.what-was-proved"></div>
+  </section>
+
+  <section class="step">
+    <h2>Tus tres preguntas de auditor</h2>
+    <p>Lean se encarga de la demostración. Tú te encargas de tres preguntas:</p>
+    <ol>
+      <li><strong>El enunciado:</strong> ¿dice lo que yo quería? (Lo que acabas de ver con <code>fee_ok</code>.)</li>
+      <li><strong>Las definiciones:</strong> las palabras que usa el enunciado, ¿significan lo que creo?</li>
+      <li><strong>Las suposiciones:</strong> ¿qué se da por bueno sin demostrar? Axiomas, condiciones escondidas, y si el modelo de Lean se parece al código real.</li>
+    </ol>
+    <p>Ejemplo de la segunda. La IA define la comisión y demuestra algo sobre ella:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok" data-allow-warn>⟪def fee (amount : Nat) : Nat := 0|def⟫
+
+theorem fee_le_100 (amount : Nat) : ⟪fee amount ≤ 100|stmt⟫ := by simp [fee]</pre>
+      <script type="application/json">{
+        "def": "Una <strong>definición</strong>: le pone nombre a algo. Aquí <code>fee</code> recibe una cantidad y devuelve... siempre 0. No es la comisión de tu contrato: es un cero con otro nombre.",
+        "stmt": "El enunciado parece perfecto: «la comisión es como mucho 100». Pero como <code>fee</code> siempre vale 0, esto solo dice que 0 es como mucho 100."
+      }</script>
+    </figure>
+    <div class="q" data-q="m0-l1.which-question"></div>
+  </section>
+
+  <section class="step">
+    <h2>El hueco que dice «confía en mí»</h2>
+    <p>A veces la IA no consigue demostrar algo y deja un hueco con la palabra <code class="l">sorry</code>. Lean lo deja pasar, pero con un aviso amarillo: <code>declaration uses `sorry`</code>.</p>
+<pre class="lean" data-check="sorry">theorem big_claim : 2 + 2 = 5 := by sorry</pre>
+    <p>Fíjate: esto «demuestra» que 2 + 2 = 5, que es falso. Con <code class="l">sorry</code> se puede «demostrar» cualquier cosa, porque no se demuestra nada.</p>
+    <div class="trap">
+      <p><strong>Regla de auditor:</strong> un <code class="l">sorry</code> en cualquier sitio de la cadena significa que eso no está demostrado. Da igual lo bonito que sea el resto.</p>
+    </div>
+    <div class="q" data-q="m0-l1.sorry-not-proved"></div>
+  </section>
+
+  <section class="step" data-kind="boss">
+    <h2>Tu jefe final</h2>
+    <p>Esto es lo que una IA escribió para un verificador WHIR real. Ahora mismo es niebla, y es lo normal: nadie lo lee el primer día.</p>
+    <p>Hoy solo despejas una pieza: la frontera <code class="l">:= by</code>. Todo lo de arriba es lo que se promete. Todo lo de abajo es la demostración, que Lean ya ha comprobado. Tu trabajo de auditor empieza arriba; abajo solo tendrás que buscar dos cosas que verás más adelante: <code class="l">sorry</code> y los axiomas.</p>
+    <div class="boss-view"></div>
+    <div class="q" data-q="m0-l1.boss-border"></div>
+  </section>
+
+  <section class="step">
+    <h2>Cómo funciona este curso</h2>
+    <ul>
+      <li>Cada lección es una sola idea, en pasos cortos. Arriba ves cuántos quedan.</li>
+      <li>Las preguntas van justo después de cada idea. Fallar está bien: la explicación sale al momento.</li>
+      <li>Si una lección te la sabes, en la portada tienes «Ya me lo sé»: solo haces las preguntas.</li>
+      <li>La <strong>Chuleta</strong> (arriba a la derecha) guarda los símbolos que vas aprendiendo.</li>
+      <li>Al terminar puedes dejarle una nota a tu tutor. Las preguntas que domines volverán en el <strong>repaso</strong>, cada vez más espaciadas.</li>
+      <li>Desde la lección siguiente, cada una acaba con un laboratorio corto en VS Code. Si un día no tienes energía, se puede saltar.</li>
+    </ul>
+    <div class="q" data-q="m0-l1.your-job"></div>
+  </section>
+
+  <section class="step" data-kind="wrap">
+    <h2>Llévate esto</h2>
+    <ul class="takeaways">
+      <li>Lean revisa cada paso de una demostración: si uno falla, no la acepta.</li>
+      <li>Lean no sabe qué querías. Tú revisas el enunciado, las definiciones y las suposiciones.</li>
+      <li>Un <code class="l">sorry</code> es un hueco: lo que depende de él no está demostrado.</li>
+    </ul>
+  </section>
+
+</main>
+<script src="../catalog.js"></script>
+<script src="../assets/boss.js"></script>
+<script src="../questions/m0-l1.js"></script>
+<script src="../assets/math.js"></script>
+<script src="../assets/engine.js"></script>
+</body>
+</html>

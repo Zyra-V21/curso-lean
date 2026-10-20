@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>1.4 Para todo y existe | Leer Lean</title>
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="lesson" data-lesson="m1-l4" data-base="../">
+<main id="lesson">
+
+  <section class="step" data-kind="cover">
+    <h1>Para todo y existe</h1>
+    <p class="lede">En una frase: <code class="l">∀</code> significa «para todos, sin excepción» y <code class="l">∃</code> significa «al menos uno»; un solo contraejemplo tumba un «para todo», y un solo testigo basta para un «existe».</p>
+    <div class="why">
+      <p><strong>Por qué te importa:</strong> «el contrato funciona para toda entrada» y «existe una entrada para la que funciona» suenan parecido y no se parecen en nada. Cambiar uno por otro es una de las formas más baratas de que un teorema prometa mucho menos de lo que parece.</p>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Para todo: sin excepciones</h2>
+    <p>«Todos los jugadores de la raid tienen nivel 80.» Para que sea verdad, tienen que cumplirlo todos. Basta uno de nivel 79 para que sea falso. Ese jugador es un <strong>contraejemplo</strong>: un caso concreto que rompe el «para todo».</p>
+    <p>En Lean, «para todo» se escribe <code class="l">∀</code>. Toca las piezas:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok">#eval decide (⟪∀ n,|forall⟫ ⟪n &lt; 5|cond⟫ → ⟪n * n &lt; 25|claim⟫)  --> true
+#eval decide (∀ n, n &lt; 10 → n * n &lt; 50)  --> false</pre>
+      <script type="application/json">{
+        "forall": "<code>∀ n,</code> se lee «para todo número <code>n</code>». Lo que sigue tiene que cumplirse para cada <code>n</code>, sin excepción.",
+        "cond": "Una hipótesis: solo nos interesan los <code>n</code> menores que 5 (0, 1, 2, 3 y 4).",
+        "claim": "Lo que se afirma de cada uno: que <code>n</code> por <code>n</code> es menor que 25. Para 4, da 16: se cumple en todos."
+      }</script>
+    </figure>
+    <p>La primera es verdad: 0, 1, 2, 3 y 4 al cuadrado dan menos de 25. La segunda es falsa: 8 es menor que 10, pero 8 por 8 son 64, que no es menor que 50. El 8 es un contraejemplo (y el 9 también).</p>
+    <div class="q" data-q="m1-l4.counterexample"></div>
+  </section>
+
+  <section class="step">
+    <h2>Existe: con uno basta</h2>
+    <p>«Hay al menos un jugador de nivel 80 en la raid.» Para que sea verdad basta con señalar a uno. Ese caso que lo demuestra se llama <strong>testigo</strong>.</p>
+    <p>En Lean, «existe» se escribe <code class="l">∃</code>.</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok">#eval decide (⟪∃ n,|exists⟫ n &lt; 10 ∧ n * n = 9)  --> true
+
+⟪example|example⟫ : ∃ n : Nat, n * n = 9 := by ⟪exists 3|witness⟫</pre>
+      <script type="application/json">{
+        "example": "<code>example</code> es un teorema sin nombre: un enunciado y su demostración, sin etiqueta.",
+        "exists": "<code>∃ n,</code> se lee «existe un número <code>n</code> tal que...». Basta con que uno lo cumpla.",
+        "witness": "Así se demuestra un «existe»: dando el testigo. <code>exists 3</code> le dice a Lean «el 3 vale», y Lean comprueba que 3 por 3 es 9."
+      }</script>
+    </figure>
+    <div class="trap">
+      <p><strong>Ojo:</strong> <code class="l">∃</code> promete muchísimo menos que <code class="l">∀</code>. «Existe una entrada para la que el contrato no pierde dinero» se cumple aunque el contrato pierda dinero con todas las demás. Si pediste «para todo» y te entregan «existe», no es lo que pediste.</p>
+    </div>
+    <div class="q" data-q="m1-l4.exists-weaker"></div>
+  </section>
+
+  <section class="step">
+    <h2>¿Para todos los qué? El dominio importa</h2>
+    <p>Detrás de cada <code class="l">∀</code> hay un tipo de cosas: el <strong>dominio</strong>. Cambiarlo cambia la verdad de la frase.</p>
+<pre class="lean" data-check="ok">#check ∀ n : Nat, 0 ≤ n  --> ∀ (n : Nat), 0 ≤ n : Prop
+#check ∀ n : Int, 0 ≤ n  --> ∀ (n : Int), 0 ≤ n : Prop</pre>
+    <p>La primera es verdad: los naturales (0, 1, 2...) nunca son negativos. La segunda es falsa: entre los enteros está el -1, un contraejemplo.</p>
+    <p>Si no se escribe el tipo, como en <code class="l">∀ n, 0 ≤ n</code>, Lean lo elige solo: como hay números, elige <code class="l">Nat</code>. Como auditor, comprueba qué dominio se eligió; <code class="l">#check</code> te lo enseña:</p>
+<pre class="lean" data-check="ok">#check ∀ n, 0 ≤ n  --> ∀ (n : Nat), 0 ≤ n : Prop</pre>
+    <div class="note">
+      <p>Aquí no usamos <code class="l">decide</code>: con números sin tope, Lean no puede comprobarlos uno a uno porque son infinitos, y responde con un error (<code>failed to synthesize</code>). Para lo infinito hace falta una demostración de verdad.</p>
+<pre class="lean" data-check="error" data-error="failed to synthesize">#eval decide (∀ n : Nat, 0 ≤ n)</pre>
+    </div>
+    <div class="q" data-q="m1-l4.domain"></div>
+  </section>
+
+  <section class="step">
+    <h2>El orden importa</h2>
+    <p>Compara estas dos frases:</p>
+    <ul>
+      <li>«Todo el mundo tiene una madre.» Para cada persona, existe alguien que es su madre. Verdad.</li>
+      <li>«Existe una madre de todo el mundo.» Hay una sola persona que es madre de todos. Falso.</li>
+    </ul>
+    <p>Las mismas palabras, en otro orden, dicen cosas muy distintas. Con números:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok">#check ⟪∀ x : Nat, ∃ y : Nat, x &lt; y|ae⟫  --> ∀ (x : Nat), ∃ y, x &lt; y : Prop
+#check ⟪∃ y : Nat, ∀ x : Nat, x &lt; y|ea⟫  --> ∃ y, ∀ (x : Nat), x &lt; y : Prop</pre>
+      <script type="application/json">{
+        "ae": "«Para todo número <code>x</code>, existe un <code>y</code> mayor que él.» Verdad: para cada <code>x</code> vale <code>x + 1</code>. Cada <code>x</code> puede tener su propio <code>y</code>.",
+        "ea": "«Existe un número <code>y</code> mayor que todos los <code>x</code>.» Falso: ese <code>y</code> tendría que ser mayor que sí mismo. Aquí hay que encontrar un solo <code>y</code> que sirva para todos."
+      }</script>
+    </figure>
+    <p>Truco de lectura: lee de izquierda a derecha. Lo que va antes manda: si el <code class="l">∀</code> va primero, el testigo puede cambiar para cada caso.</p>
+    <div class="q" data-q="m1-l4.order"></div>
+  </section>
+
+  <section class="step">
+    <h2>Negar un «para todo»</h2>
+    <p>«No todos aprobaron» no significa «nadie aprobó». Significa «alguien suspendió». Negar un «para todo» da un «existe uno que no».</p>
+    <p>Y al revés: «no existe nadie que haya copiado» es lo mismo que «para todo alumno, ese alumno no copió».</p>
+<pre class="lean" data-check="ok">#eval decide (¬ ∀ n, n &lt; 10 → n * n &lt; 50)  --> true
+#eval decide (∃ n, n &lt; 10 ∧ ¬ (n * n &lt; 50))  --> true</pre>
+    <p>Las dos dicen lo mismo: no todos los números menores que 10 tienen el cuadrado menor que 50, porque existe alguno (el 8, por ejemplo) que no.</p>
+    <div class="q" data-q="m1-l4.negation"></div>
+  </section>
+
+  <section class="step" data-kind="boss">
+    <h2>El jefe, hoy</h2>
+    <p>Hoy despejas dos piezas del jefe: <code class="l">∃ witness : List R,</code> y <code class="l">∀ w',</code>.</p>
+    <p>Juntas se leen así: «<strong>existe</strong> un testigo <code>witness</code> tal que abre el compromiso, y <strong>para todo</strong> <code>w'</code> que también lo abra, <code>w'</code> es ese mismo testigo». Es decir: hay un testigo, y es el único.</p>
+    <div class="boss-view"></div>
+    <div class="q" data-q="m1-l4.boss-unique"></div>
+  </section>
+
+  <section class="step" data-kind="lab" data-file="Practice/M1/L4.lean">
+    <h2>Laboratorio</h2>
+    <ol>
+      <li>Pon el cursor en las líneas del <strong>Paso 1</strong> y mira lo que responde Lean en el panel Lean Infoview.</li>
+      <li>En el <strong>Paso 2</strong>, cambia el <code class="l">10</code> por un <code class="l">8</code> y mira la nueva respuesta.</li>
+      <li>En el <strong>Paso 3</strong>, cambia el testigo <code class="l">3</code> por un <code class="l">4</code>. ¿Qué pasa? Luego Ctrl+Z.</li>
+    </ol>
+    <div class="q" data-q="m1-l4.lab-bound"></div>
+    <div class="q" data-q="m1-l4.lab-witness"></div>
+  </section>
+
+  <section class="step" data-kind="wrap">
+    <h2>Llévate esto</h2>
+    <ul class="takeaways">
+      <li><code class="l">∀</code> es «para todos»: un contraejemplo lo tumba. <code class="l">∃</code> es «al menos uno»: un testigo lo demuestra.</li>
+      <li>Mira el dominio y el orden: <code class="l">∀ x, ∃ y</code> no es <code class="l">∃ y, ∀ x</code>.</li>
+      <li>«No todos» es «alguno no». Y un <code class="l">∃</code> donde pediste un <code class="l">∀</code> promete mucho menos.</li>
+    </ul>
+  </section>
+
+</main>
+<script src="../catalog.js"></script>
+<script src="../assets/boss.js"></script>
+<script src="../questions/m1-l4.js"></script>
+<script src="../assets/math.js"></script>
+<script src="../assets/engine.js"></script>
+</body>
+</html>

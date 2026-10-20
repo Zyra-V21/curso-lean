@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2.2 Funciones: máquinas con entradas y salida | Leer Lean</title>
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="lesson" data-lesson="m2-l2" data-base="../">
+<main id="lesson">
+
+  <section class="step" data-kind="cover">
+    <h1>Funciones: máquinas con entradas y salida</h1>
+    <p class="lede">En una frase: una función recibe datos, hace una cuenta y devuelve un resultado; para auditarla, lees su cuerpo y calculas a mano lo que devuelve.</p>
+    <div class="why">
+      <p><strong>Por qué te importa:</strong> los enunciados que escribe la IA están llenos de funciones (<code>fee</code>, <code>verifyIdentity</code>, <code>foldRounds</code>...). Si no sabes qué devuelve una función, no sabes qué promete el teorema que la usa. Y su nombre no cuenta: cuenta su cuerpo.</p>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Una máquina con nombre</h2>
+    <p>Una <strong>función</strong> es como una máquina: le metes algo por la entrada, hace una cuenta y sale un resultado. En Lean se define con <code class="l">def</code>. Toca las piezas:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok" data-id="double">⟪def|def⟫ ⟪double|name⟫ ⟪(n : Nat)|input⟫ ⟪: Nat|output⟫ ⟪:=|defeq⟫ ⟪2 * n|body⟫</pre>
+      <script type="application/json">{
+        "def": "<code>def</code> define un nombre nuevo. Aquí, una función.",
+        "name": "El nombre: <code>double</code> («doble»). Lo elige quien escribe el código.",
+        "input": "La entrada: se llama <code>n</code> y es de tipo <code>Nat</code> (un número natural). Dentro del cuerpo, <code>n</code> vale el número que le pases.",
+        "output": "Lo que devuelve: un <code>Nat</code>. Los dos puntos que van después de las entradas dicen el tipo del resultado.",
+        "defeq": "<code>:=</code> se lee «se define como».",
+        "body": "El <strong>cuerpo</strong>: la cuenta que hace la máquina. Aquí, 2 por <code>n</code>."
+      }</script>
+    </figure>
+    <p>Para calcular a mano, cambias <code class="l">n</code> por el número que entra: <code class="l">double 3</code> es <code class="l">2 * 3</code>, o sea 6. Lean opina lo mismo:</p>
+<pre class="lean" data-uses="double">#eval double 3  --> 6</pre>
+    <div class="q" data-q="m2-l2.double-five"></div>
+  </section>
+
+  <section class="step">
+    <h2>Llamar a una función: sin paréntesis</h2>
+    <p>En el colegio escribías f(3). En Lean se escribe la función, un espacio y el dato: <code class="l">double 3</code>. Cada dato que le pasas a una función se llama <strong>argumento</strong>.</p>
+    <p>Los paréntesis solo sirven para agrupar:</p>
+<pre class="lean" data-uses="double">#eval double (double 3)  --> 12
+#eval double 2 + 1       --> 5
+#eval double (2 + 1)     --> 6</pre>
+    <p><code class="l">double (double 3)</code> es el doble de 6, o sea 12. Pero fíjate en la segunda línea: da 5, no 6.</p>
+    <div class="trap">
+      <p><strong>Regla de lectura:</strong> una función se queda con lo que tiene justo al lado. <code class="l">double 2 + 1</code> es <code class="l">(double 2) + 1</code>, o sea 4 + 1. Si se quiere el doble de 3, hay que escribir <code class="l">double (2 + 1)</code>. Un paréntesis de menos cambia el resultado, y Lean no se queja: las dos cosas son válidas.</p>
+    </div>
+    <div class="q" data-q="m2-l2.app-precedence"></div>
+  </section>
+
+  <section class="step">
+    <h2>Varias entradas, y el tipo con flechas</h2>
+    <p>Una función puede tener varias entradas. Se ponen una detrás de otra:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok" data-id="add">def add ⟪(a b : Nat)|inputs⟫ : Nat := ⟪a + b|body⟫</pre>
+      <script type="application/json">{
+        "inputs": "Dos entradas, <code>a</code> y <code>b</code>, las dos de tipo <code>Nat</code>. Es lo mismo que escribir <code>(a : Nat) (b : Nat)</code>.",
+        "body": "El cuerpo: suma las dos entradas."
+      }</script>
+    </figure>
+    <p>Se llama igual, con espacios: <code class="l">add 2 3</code>. Y Lean puede describir la función de forma compacta, solo con tipos:</p>
+<pre class="lean" data-uses="add">#eval add 2 3   --> 5
+#check (add)    --> add : Nat → Nat → Nat</pre>
+    <p>(Los paréntesis de <code class="l">(add)</code> le piden a Lean esa forma corta, solo con tipos; sin ellos la escribe con los nombres de las entradas.)</p>
+    <p><code class="l">Nat → Nat → Nat</code> se lee: recibe un <code class="l">Nat</code>, luego otro <code class="l">Nat</code>, y devuelve un <code class="l">Nat</code>. Lo que va después de la última flecha es la salida; todo lo anterior son entradas.</p>
+    <div class="note">
+      <p>Sí, es la misma flecha que en «si... entonces». No es casualidad, y lo verás más adelante en el curso. Por ahora: en un tipo, <code class="l">A → B</code> es una función que recibe un <code class="l">A</code> y devuelve un <code class="l">B</code>.</p>
+      <p>A veces la IA escribe funciones sin nombre, de un solo uso: <code class="l">fun x => x + 1</code> se lee «recibe <code class="l">x</code> y devuelve <code class="l">x + 1</code>».</p>
+    </div>
+    <div class="q" data-q="m2-l2.arrow-type"></div>
+  </section>
+
+  <section class="step">
+    <h2>El nombre no demuestra nada: lee el cuerpo</h2>
+    <p>Al auditar, el nombre de una función es una promesa sin firmar. Lo que cuenta es el cuerpo. Mira esta, que la IA ha llamado «es seguro»:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok" data-allow-warn data-id="safe">def ⟪isSafe|name⟫ (amount : Nat) : ⟪Bool|bool⟫ := ⟪true|body⟫</pre>
+      <script type="application/json">{
+        "name": "<code>isSafe</code>, «es seguro». Suena a que comprueba algo importante.",
+        "bool": "Devuelve un <code>Bool</code>: <code>true</code> (sí) o <code>false</code> (no).",
+        "body": "El cuerpo es simplemente <code>true</code>. No mira <code>amount</code> para nada: <code>isSafe</code> dice «sí» con cualquier cantidad."
+      }</script>
+    </figure>
+<pre class="lean" data-uses="safe" data-allow-warn>#eval isSafe 0        --> true
+#eval isSafe 1000000  --> true</pre>
+    <div class="trap">
+      <p><strong>Ojo de auditor:</strong> si un teorema dice «si <code class="l">isSafe x</code> es verdad, entonces...», está usando una condición que se cumple siempre: no protege de nada. Una pista: en VS Code, Lean avisa de que <code class="l">amount</code> no se usa. Un aviso así en una función de seguridad es para mirarlo. Antes de fiarte de un enunciado, abre las definiciones que usa y calcula con un par de números.</p>
+    </div>
+    <div class="q" data-q="m2-l2.read-body"></div>
+  </section>
+
+  <section class="step" data-kind="boss">
+    <h2>El jefe: funciones aplicadas</h2>
+    <p>Hoy despejas un montón de piezas. Todas tienen la misma forma: una función seguida de sus argumentos, separados por espacios. Por ejemplo, <code class="l">OpensTo acc.commitment witness</code> es la función <code class="l">OpensTo</code> con dos argumentos.</p>
+    <p>(<code class="l">acc.commitment</code> es un dato guardado dentro de <code class="l">acc</code>; lo verás en la lección 2.4.)</p>
+    <p>Ya sabes leer su forma. Lo que significan es otra historia: igual que con <code class="l">isSafe</code>, habría que abrir sus definiciones. Eso llegará.</p>
+    <div class="boss-view"></div>
+    <div class="q" data-q="m2-l2.boss-apply"></div>
+  </section>
+
+  <section class="step" data-kind="lab" data-file="Practice/M2/L2.lean">
+    <h2>Laboratorio</h2>
+    <ol>
+      <li>Abre el archivo y lee las tres definiciones de arriba.</li>
+      <li>Antes de mirar el panel Lean Infoview (a la derecha; si no lo ves, Ctrl+Shift+Enter), calcula a mano lo que devuelve cada <code>#eval</code>.</li>
+      <li>Pon el cursor al final de cada <code>#eval</code> y compara con lo que dice Lean.</li>
+      <li>Cambia <code>2 * n</code> por <code>2 * m</code> en <code>double</code>. Sale en rojo la definición (Lean no sabe qué es <code>m</code>) y también los <code>#eval</code> de <code>double</code>: cuando una definición tiene un error, Lean la sustituye por dentro por un <code>sorry</code> y no calcula con ella. El error de verdad es el primero. Deshazlo con Ctrl+Z.</li>
+    </ol>
+    <div class="q" data-q="m2-l2.lab-fee"></div>
+  </section>
+
+  <section class="step" data-kind="wrap">
+    <h2>Llévate esto</h2>
+    <ul class="takeaways">
+      <li>Una función se lee así: <code class="l">def nombre (entrada : tipo) : tipoDeSalida := cuerpo</code>. Para saber qué devuelve, cambia la entrada por un número y calcula.</li>
+      <li>En Lean se aplica sin paréntesis (<code class="l">double 3</code>), y la función se queda con lo que tiene al lado: <code class="l">double 2 + 1</code> es <code class="l">(double 2) + 1</code>.</li>
+      <li>El nombre no demuestra nada. Lee el cuerpo: <code class="l">isSafe</code> puede no comprobar nada.</li>
+    </ul>
+  </section>
+
+</main>
+<script src="../catalog.js"></script>
+<script src="../assets/boss.js"></script>
+<script src="../questions/m2-l2.js"></script>
+<script src="../assets/math.js"></script>
+<script src="../assets/engine.js"></script>
+</body>
+</html>

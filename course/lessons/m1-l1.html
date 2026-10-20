@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>1.1 Proposiciones: frases que son verdad o mentira | Leer Lean</title>
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="lesson" data-lesson="m1-l1" data-base="../">
+<main id="lesson">
+
+  <section class="step" data-kind="cover">
+    <h1>Proposiciones: frases que son verdad o mentira</h1>
+    <p class="lede">En una frase: una proposición es una afirmación que puede ser verdadera o falsa, y escribirla no es lo mismo que demostrarla.</p>
+    <div class="why">
+      <p><strong>Por qué te importa:</strong> cada teorema que te entregue la IA afirma una proposición. Antes de preguntarte si está bien demostrada, tienes que saber qué afirma.</p>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Afirmar algo</h2>
+    <p>Una <strong>proposición</strong> es una frase que afirma algo y que, por tanto, es verdadera o falsa. No hace falta saber cuál de las dos: basta con que tenga sentido preguntarlo.</p>
+    <ul>
+      <li>«Madrid está en España»: proposición, y verdadera.</li>
+      <li>«2 + 2 = 5»: proposición, y falsa. Sigue siendo una proposición.</li>
+      <li>«¡Abre la puerta!»: no. Es una orden, no afirma nada.</li>
+      <li>«¿Qué hora es?»: no. Es una pregunta.</li>
+      <li>«2 + 2»: no. Es un número, y un número no afirma nada.</li>
+    </ul>
+    <div class="analogy">
+      <p>Piensa en una apuesta: solo puedes apostar sobre algo que al final sale verdad o mentira. «Mañana llueve» vale para apostar. «Paraguas» no.</p>
+    </div>
+    <div class="q" data-q="m1-l1.what-is-prop"></div>
+  </section>
+
+  <section class="step">
+    <h2>En Lean se llaman Prop</h2>
+    <p>Lean tiene un tipo para las proposiciones: <code class="l">Prop</code>. Si le preguntas con <code class="l">#check</code>, te lo dice:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok">#check ⟪2 + 2 = 4|true⟫  ⟪--> 2 + 2 = 4 : Prop|prop⟫
+#check ⟪2 + 2 = 5|false⟫  --> 2 + 2 = 5 : Prop
+#check ⟪2 + 2|num⟫  ⟪--> 2 + 2 : Nat|nat⟫</pre>
+      <script type="application/json">{
+        "true": "Una igualdad: afirma que 2 + 2 y 4 son lo mismo. Es verdad.",
+        "prop": "Lean contesta: esto es de tipo <code>Prop</code>, una proposición. No dice si es verdad o mentira, solo qué clase de cosa es.",
+        "false": "Otra igualdad, esta vez falsa. Pero Lean no se queja: escribir una afirmación falsa está permitido. Demostrarla ya es otra cosa.",
+        "num": "Sin el <code>=</code> no hay afirmación: <code>2 + 2</code> es solo un número.",
+        "nat": "Por eso Lean dice <code>Nat</code> (número natural) y no <code>Prop</code>."
+      }</script>
+    </figure>
+    <div class="trap">
+      <p><strong>Ojo:</strong> que Lean diga <code class="l">Prop</code> no significa «verdad». Significa «esto es una afirmación». Lean te deja escribir mentiras sin pestañear. Otra cosa es demostrarlas: Lean acepta lo que está demostrado (dando por buenos los axiomas).</p>
+    </div>
+    <div class="q" data-q="m1-l1.check-false-prop"></div>
+  </section>
+
+  <section class="step">
+    <h2>Escribir no es demostrar</h2>
+    <p>Hay dos cosas distintas que se confunden mucho:</p>
+    <ol>
+      <li><strong>Escribir una proposición:</strong> <code class="l">2 + 2 = 5</code>. Cualquiera puede.</li>
+      <li><strong>Demostrarla:</strong> dar razones, paso a paso, que Lean comprueba. Lean acepta lo que está demostrado (dando por buenos los axiomas).</li>
+    </ol>
+    <p>Para afirmaciones sencillas sobre números concretos, Lean puede averiguar si son verdad calculando. Se lo pides con <code class="l">decide</code>:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok">#eval ⟪decide|decide⟫ (2 + 2 = 4)  ⟪--> true|answer⟫
+#eval decide (2 + 2 = 5)  --> false</pre>
+      <script type="application/json">{
+        "decide": "<code>decide</code> le pide a Lean: «calcula si esta proposición es verdad». Solo funciona con cosas que se pueden comprobar a base de cuentas.",
+        "answer": "La respuesta de un cálculo: <code>true</code> (verdadero) o <code>false</code> (falso), en minúscula. Más adelante verás por qué hay minúsculas y mayúsculas."
+      }</script>
+    </figure>
+    <div class="note">
+      <p><code class="l">#eval decide</code> solo calcula y te enseña la respuesta: no deja ningún teorema guardado. La forma de demostración es la de la lección 0.1, donde <code class="l">decide</code> hace el mismo cálculo y Lean guarda el resultado como un teorema con nombre:</p>
+    </div>
+<pre class="lean" data-check="ok">theorem two_plus_two : 2 + 2 = 4 := by decide</pre>
+    <div class="q" data-q="m1-l1.check-not-proof"></div>
+  </section>
+
+  <section class="step">
+    <h2>Las piezas de hoy</h2>
+    <div class="table-scroll">
+      <table class="truth">
+        <tr><th>Símbolo</th><th>Se lee</th><th>Ejemplo verdadero</th></tr>
+        <tr><td>=</td><td>es igual a</td><td>2 + 2 = 4</td></tr>
+        <tr><td>≠</td><td>no es igual a</td><td>3 ≠ 4</td></tr>
+        <tr><td>≤</td><td>es menor o igual que</td><td>5 ≤ 5</td></tr>
+        <tr><td>&lt;</td><td>es menor que</td><td>4 &lt; 5</td></tr>
+      </table>
+    </div>
+    <p>Y dos proposiciones especiales: <code class="l">True</code>, la que es verdad siempre, y <code class="l">False</code>, la que no es verdad nunca. Con mayúscula: son proposiciones, no respuestas de un cálculo.</p>
+<pre class="lean" data-check="ok">#eval decide (3 ≠ 4)  --> true
+#eval decide (5 ≤ 5)  --> true
+#eval decide (5 &lt; 5)  --> false</pre>
+    <div class="trap">
+      <p><strong>Ojo de auditor:</strong> un solo carácter cambia la promesa. «El saldo es ≤ 0» deja que el saldo sea 0; «el saldo es &lt; 0» no. Cuando leas un enunciado, mira cada símbolo de comparación.</p>
+    </div>
+    <div class="q" data-q="m1-l1.le-vs-lt"></div>
+  </section>
+
+  <section class="step" data-kind="boss">
+    <h2>El jefe, hoy</h2>
+    <p>Hoy despejas las igualdades del jefe. Cada <code class="l">=</code> forma una proposición: una afirmación de que dos cosas son la misma.</p>
+    <p>Fíjate en <code class="l">hlen</code>, arriba: afirma que la longitud de <code class="l">finalPoly</code> es igual a 2 elevado a la longitud de <code class="l">finalRand</code>. Todavía no sabes qué son esas cosas, pero ya sabes leer qué clase de frase es.</p>
+    <div class="boss-view"></div>
+    <div class="q" data-q="m1-l1.boss-eq"></div>
+  </section>
+
+  <section class="step" data-kind="lab" data-file="Practice/M1/L1.lean">
+    <h2>Laboratorio</h2>
+    <p>Abre el archivo y ve paso a paso con el cursor y el panel:</p>
+    <ol>
+      <li>Usa <code class="l">#check</code> con varias afirmaciones y mira cuáles son <code class="l">Prop</code>.</li>
+      <li>Usa <code class="l">#eval decide</code> para ver si son verdad o mentira.</li>
+      <li>Cambia números y símbolos, y mira cómo cambia la respuesta.</li>
+    </ol>
+    <div class="q" data-q="m1-l1.lab-check-type"></div>
+    <div class="q" data-q="m1-l1.lab-decide"></div>
+  </section>
+
+  <section class="step" data-kind="wrap">
+    <h2>Llévate esto</h2>
+    <ul class="takeaways">
+      <li>Una proposición afirma algo: es verdadera o falsa. Órdenes, preguntas y números no lo son.</li>
+      <li>En Lean, las proposiciones son de tipo <code class="l">Prop</code>, también las falsas. Escribir no es demostrar.</li>
+      <li>Lee cada símbolo: <code class="l">≤</code> y <code class="l">&lt;</code> prometen cosas distintas.</li>
+    </ul>
+  </section>
+
+</main>
+<script src="../catalog.js"></script>
+<script src="../assets/boss.js"></script>
+<script src="../questions/m1-l1.js"></script>
+<script src="../assets/math.js"></script>
+<script src="../assets/engine.js"></script>
+</body>
+</html>

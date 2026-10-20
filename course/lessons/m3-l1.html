@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>3.1 Anatomía de un teorema | Leer Lean</title>
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="lesson" data-lesson="m3-l1" data-base="../">
+<main id="lesson">
+
+  <section class="step" data-kind="cover">
+    <h1>Anatomía de un teorema</h1>
+    <p class="lede">En una frase: todo teorema tiene la misma forma: nombre, argumentos, hipótesis, dos puntos, conclusión y, detrás de <code class="l">:=</code>, la demostración.</p>
+    <div class="why">
+      <p><strong>Por qué te importa:</strong> si sabes partir un teorema en piezas, puedes traducir cualquier enunciado al español sin entender su demostración. Es la habilidad principal de un auditor.</p>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Las piezas</h2>
+    <p>Este teorema dice algo muy sencillo sobre números. Toca las piezas en orden:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok">⟪theorem|kw⟫ ⟪le_of_lt_example|name⟫ ⟪(a b : Nat)|args⟫ ⟪(h : a &lt; b)|hyp⟫ ⟪:|colon⟫ ⟪a ≤ b|concl⟫ ⟪:= by omega|proof⟫</pre>
+      <script type="application/json">{
+        "kw": "<code>theorem</code>: aquí empieza un teorema.",
+        "name": "El nombre. Una etiqueta para poder usarlo después. No demuestra nada.",
+        "args": "Argumentos: dos números naturales cualesquiera, <code>a</code> y <code>b</code>.",
+        "hyp": "Una <strong>hipótesis</strong>: un argumento cuyo tipo es una proposición. Se llama <code>h</code> y dice <code>a &lt; b</code>. Es una condición: el teorema solo habla de los casos en que se cumple.",
+        "colon": "Los dos puntos separan lo que recibe el teorema de lo que afirma.",
+        "concl": "La <strong>conclusión</strong>: lo que el teorema afirma, <code>a ≤ b</code>.",
+        "proof": "La demostración. <code>omega</code> es una táctica que resuelve sola cuentas con números enteros y naturales. Lean la ha comprobado: no hace falta que la leas."
+      }</script>
+    </figure>
+    <p>Todo lo que va antes de <code class="l">:=</code> es el <strong>enunciado</strong>. Es lo que revisas tú.</p>
+    <div class="q" data-q="m3-l1.conclusion"></div>
+  </section>
+
+  <section class="step">
+    <h2>Datos y promesas</h2>
+    <p>Todo lo que va entre paréntesis antes de los dos puntos es un argumento. Hay dos clases:</p>
+    <ul>
+      <li><strong>Datos</strong>, como <code class="l">(a b : Nat)</code> o <code class="l">(xs : List Nat)</code>. Su tipo es un tipo de cosas: números, listas...</li>
+      <li><strong>Hipótesis</strong>, como <code class="l">(h : a &lt; b)</code> o <code class="l">(hlen : xs.length = 3)</code>. Su tipo es una proposición: algo que puede ser verdad o mentira, y que el teorema da por cumplido.</li>
+    </ul>
+    <p>Truco: mira lo que hay después de los dos puntos de dentro del paréntesis. Si se puede leer como una afirmación, es una hipótesis. Además, la IA suele llamarlas <code class="l">h</code>, <code class="l">h1</code>, <code class="l">hlen</code>, <code class="l">hpos</code>...</p>
+    <div class="note">
+      <p>Recuerda la lección 2.4: también hay hipótesis escondidas dentro de una estructura, en sus campos-promesa. En el jefe lo vas a ver.</p>
+    </div>
+    <div class="q" data-q="m3-l1.which-hyps"></div>
+  </section>
+
+  <section class="step">
+    <h2>La receta para leer</h2>
+    <p>Para traducir un teorema al español: los datos se leen «para todo», las hipótesis «si», y la conclusión «entonces».</p>
+<pre class="lean" data-check="ok">theorem le_of_lt_example (a b : Nat) (h : a &lt; b) : a ≤ b := by omega</pre>
+    <div class="analogy">
+      <p>«Para todo par de naturales a y b, si a &lt; b, entonces a ≤ b.»</p>
+    </div>
+<pre class="lean" data-check="ok">theorem add_comm_example (a b : Nat) : a + b = b + a := by omega</pre>
+    <div class="analogy">
+      <p>«Para todo par de naturales a y b, a + b = b + a.» Sin hipótesis, no hay «si».</p>
+    </div>
+    <p>No es una forma de hablar: es literalmente lo que Lean entiende. Con <code class="l">#check @</code> lo escribe con los símbolos de la lección 1.4:</p>
+<pre class="lean" data-check="ok">theorem le_of_lt_example (a b : Nat) (h : a &lt; b) : a ≤ b := by omega
+#check @le_of_lt_example  --> le_of_lt_example : ∀ (a b : Nat), a &lt; b → a ≤ b</pre>
+    <div class="q" data-q="m3-l1.translate"></div>
+  </section>
+
+  <section class="step">
+    <h2>example, lemma y demostraciones sin by</h2>
+    <p><code class="l">example</code> es un teorema sin nombre. Lean lo comprueba igual, pero no se puede usar después. Sirve para ejemplos y pruebas rápidas.</p>
+<pre class="lean" data-check="ok">example (a : Nat) : a + 0 = a := by simp</pre>
+    <p><code class="l">lemma</code> es lo mismo que <code class="l">theorem</code>. Lo añade Mathlib y se suele usar para resultados pequeños:</p>
+<pre class="lean" data-check="skip">lemma small_fact (a : Nat) : a + 0 = a := by simp</pre>
+    <p>Y la demostración no siempre empieza con <code class="l">by</code>. A veces es directamente un valor, como <code class="l">rfl</code> («las dos partes son lo mismo») o el nombre de otro teorema:</p>
+<pre class="lean" data-check="ok">theorem two_eq_two : 2 = 2 := rfl</pre>
+    <div class="note">
+      <p>Para auditar da igual cómo empiece la demostración: tu lectura del enunciado acaba en <code class="l">:=</code>.</p>
+    </div>
+    <div class="q" data-q="m3-l1.example-vs-theorem"></div>
+  </section>
+
+  <section class="step">
+    <h2>Lo que enseña el panel de Lean: ⊢</h2>
+    <p>Cuando pones el cursor dentro de una demostración, el panel Lean Infoview te enseña el teorema desmontado. Para <code class="l">le_of_lt_example</code>, justo antes de <code class="l">omega</code>, verías esto:</p>
+    <div class="infoview" role="img" aria-label="Panel de Lean: a b de tipo Nat, h que dice a menor que b, y el objetivo a menor o igual que b">
+      <div class="iv-count">1 goal</div>
+      <div class="iv-hyp"><span class="hn">a b</span> : <span class="ht">Nat</span></div>
+      <div class="iv-hyp"><span class="hn">h</span> : <span class="ht">a &lt; b</span></div>
+      <div class="iv-goal"><span class="turnstile">⊢ </span>a ≤ b</div>
+    </div>
+    <p>Arriba, lo que tienes: los datos y las hipótesis. Abajo, tras el símbolo <code class="l">⊢</code>, el <strong>objetivo</strong>: lo que falta por demostrar, que al principio es la conclusión. Cuando la demostración termina, el panel dice <code>No goals</code>: no queda nada.</p>
+    <p>Es el mismo dibujo que el mapa del curso: tus lecciones dominadas son hipótesis, y <code class="l">⊢ lees_y_auditas_lean</code> es tu objetivo.</p>
+    <div class="q" data-q="m3-l1.turnstile"></div>
+  </section>
+
+  <section class="step" data-kind="boss">
+    <h2>El jefe, hoy: su cabecera</h2>
+    <p>Hoy despejas la cabecera del jefe: <code class="l">theorem</code>, su nombre, su único argumento <code class="l">(acc : WhirAccept R)</code> y los dos puntos.</p>
+    <p>Aplica la receta: «Para toda ejecución aceptada <code>acc</code>, se cumple la parte (1), y existe un testigo tal que...».</p>
+    <p>¿Y las hipótesis? No hay ningún <code class="l">(h : ...)</code> a la vista. Están dentro de <code class="l">acc</code>: son los campos-promesa de <code class="l">WhirAccept</code> (<code class="l">hlen</code>, <code class="l">opens</code>, <code class="l">identity</code>) que viste en 2.4. Y por la línea <code class="l">variable</code> del archivo, también lleva <code class="l">{R : Type*} [CommRing R]</code> (2.5).</p>
+    <div class="boss-view"></div>
+    <div class="q" data-q="m3-l1.boss-hyps"></div>
+  </section>
+
+  <section class="step" data-kind="lab" data-file="Practice/M3/L1.lean">
+    <h2>Laboratorio</h2>
+    <p>Aquí vas a ver el panel con tus propios ojos. Sigue los pasos de los comentarios del archivo:</p>
+    <ol>
+      <li>Pon el cursor al principio de la línea de <code class="l">omega</code> del primer teorema, justo antes de la o. Mira el panel Lean Infoview.</li>
+      <li>Ahora pon el cursor al final de esa misma línea, después de <code class="l">omega</code>. Mira el panel otra vez.</li>
+    </ol>
+    <div class="q" data-q="m3-l1.lab-goal"></div>
+    <div class="q" data-q="m3-l1.lab-nogoals"></div>
+  </section>
+
+  <section class="step" data-kind="wrap">
+    <h2>Llévate esto</h2>
+    <ul class="takeaways">
+      <li>Un teorema es: nombre, argumentos (datos e hipótesis), dos puntos, conclusión y, tras <code class="l">:=</code>, la demostración.</li>
+      <li>Para leerlo: datos = «para todo», hipótesis = «si», conclusión = «entonces».</li>
+      <li>En el panel de Lean, arriba está lo que tienes y tras <code class="l">⊢</code> lo que falta por demostrar.</li>
+    </ul>
+  </section>
+
+</main>
+<script src="../catalog.js"></script>
+<script src="../assets/boss.js"></script>
+<script src="../questions/m3-l1.js"></script>
+<script src="../assets/math.js"></script>
+<script src="../assets/engine.js"></script>
+</body>
+</html>

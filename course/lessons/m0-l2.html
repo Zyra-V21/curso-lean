@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>0.2 Tu taller: VS Code y el panel de Lean | Leer Lean</title>
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="lesson" data-lesson="m0-l2" data-base="../">
+<main id="lesson">
+
+  <section class="step" data-kind="cover">
+    <h1>Tu taller: VS Code y el panel de Lean</h1>
+    <p class="lede">En una frase: VS Code es donde abres los archivos de Lean, y el panel Lean Infoview es donde Lean te contesta.</p>
+    <div class="why">
+      <p><strong>Por qué te importa:</strong> cuando la IA te pase una demostración, la vas a abrir aquí. Saber leer los colores y el panel ya te dice en segundos si algo huele mal.</p>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Dos mitades: tu hoja y Lean hablando</h2>
+    <p><strong>VS Code</strong> es un editor de texto para código. Con la extensión de Lean (ya la tienes instalada), cada archivo <code>.lean</code> se comprueba solo mientras lo miras.</p>
+    <p>La pantalla queda partida en dos:</p>
+    <ul>
+      <li><strong>A la izquierda, el editor:</strong> el código, como una hoja de texto.</li>
+      <li><strong>A la derecha, el panel Lean Infoview:</strong> lo que Lean responde sobre la línea donde tienes el cursor. Para ver las respuestas de todas las líneas a la vez, despliega <code>All Messages</code>, al final del panel.</li>
+    </ul>
+    <p>Además, en las carpetas del curso cada respuesta corta sale escrita al final de su línea, en el propio código. Lo hace una extensión que tienes instalada, Error Lens.</p>
+    <p>El panel se abre solo la primera vez. Si lo cierras, vuelve con <code>Ctrl+Shift+Enter</code>, o con el icono de Lean arriba a la derecha del editor y la opción <code>Toggle InfoView</code>.</p>
+    <div class="note">
+      <p>La primera vez que abres un archivo, Lean tarda unos segundos en arrancar. Si algo se queda raro o colgado, <code>Ctrl+Shift+X</code> vuelve a comprobar el archivo desde cero (en el menú de Lean se llama <code>Restart File</code>).</p>
+    </div>
+    <div class="note">
+      <p>VS Code trae una IA que a veces te propone código: lo verás en gris o dentro de una caja verde, con una flechita junto al número de línea. Eso no está escrito en el archivo, así que Lean no lo lee. <code>Tab</code> lo acepta y <code>Esc</code> lo quita.</p>
+    </div>
+    <div class="q" data-q="m0-l2.infoview-role"></div>
+  </section>
+
+  <section class="step">
+    <h2>#eval: calcula y enséñame</h2>
+    <p>Las líneas que empiezan por <code class="l">#</code> son órdenes para Lean. La primera que vas a ver es <code class="l">#eval</code>: «calcula esto y dime el resultado».</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok">⟪#eval|cmd⟫ ⟪2 + 2|expr⟫  --> 4
+#eval 10 * 3  --> 30</pre>
+      <script type="application/json">{
+        "cmd": "<code>#eval</code> significa «evalúa»: calcula lo que viene detrás.",
+        "expr": "Lo que Lean tiene que calcular. En el editor, <code>*</code> es multiplicar."
+      }</script>
+    </figure>
+    <p>En este curso, la respuesta de Lean aparece al final de la línea como una etiqueta azul. En tu VS Code la verás en dos sitios: escrita al final de la línea (gracias a Error Lens) y en el panel, cuando pongas el cursor en esa línea. El <code class="l">#eval</code> queda subrayado en azul: azul significa «información», Lean te está contestando, no quejándose.</p>
+    <div class="q" data-q="m0-l2.eval-result"></div>
+  </section>
+
+  <section class="step">
+    <h2>#check: dime qué es esto</h2>
+    <p><code class="l">#check</code> no calcula: te dice <strong>qué clase de cosa</strong> es lo que le das. Lean llama a esa clase el <strong>tipo</strong>.</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok">⟪#check|cmd⟫ 2 + 2  ⟪--> 2 + 2 : Nat|nat⟫
+#check "hola"  ⟪--> "hola" : String|str⟫</pre>
+      <script type="application/json">{
+        "cmd": "<code>#check</code>: «compruébame qué es esto». No calcula el resultado, te dice su tipo.",
+        "nat": "La respuesta de Lean: repite la expresión, dos puntos, y el tipo. <code>Nat</code> son los números naturales: 0, 1, 2, 3... Se lee «2 + 2 es un número natural».",
+        "str": "<code>String</code> significa texto. Las comillas marcan que es texto y no un número."
+      }</script>
+    </figure>
+    <p>Fíjate: con <code class="l">#check 2 + 2</code> Lean no dice 4. Dice que es un número. Para el resultado está <code class="l">#eval</code>.</p>
+    <div class="q" data-q="m0-l2.check-what"></div>
+  </section>
+
+  <section class="step">
+    <h2>Los tres colores</h2>
+    <p>Lean subraya con una línea ondulada. El color te dice qué pasa:</p>
+    <p><strong class="c-ko">Rojo: error.</strong> Lean rechaza algo. Aquí, porque 2 + 2 = 5 es falso:</p>
+<pre class="lean" data-check="error" data-error="is false">theorem wrong_sum : 2 + 2 = 5 := by decide</pre>
+    <p><strong class="c-warn">Amarillo: aviso.</strong> Lean deja pasar algo, pero te advierte. El aviso que más te importa como auditor es el de <code class="l">sorry</code>: <code>declaration uses `sorry`</code>, justo debajo del nombre del teorema.</p>
+<pre class="lean" data-check="sorry">theorem not_yet : 2 + 2 = 5 := by sorry</pre>
+    <p><strong class="c-info">Azul: información.</strong> Lean contesta a algo que le has preguntado, como un <code class="l">#eval</code>. No es un problema.</p>
+    <div class="trap">
+      <p><strong>Ojo de auditor:</strong> que no haya nada en rojo no significa que todo esté demostrado. Un archivo lleno de amarillos de <code class="l">sorry</code> compila, pero no demuestra lo que tiene huecos.</p>
+    </div>
+    <div class="q" data-q="m0-l2.yellow-squiggle"></div>
+  </section>
+
+  <section class="step">
+    <h2>Los comentarios no se comprueban</h2>
+    <p>Todo lo que va detrás de <code class="l">--</code> en una línea es un <strong>comentario</strong>: texto para humanos. Lean lo ignora por completo. Los comentarios largos van entre <code class="l">/-</code> y <code class="l">-/</code>, y los de documentación entre <code class="l">/--</code> y <code class="l">-/</code>.</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok">⟪-- this gives 5|comment⟫
+#eval 2 + 2  --> 4</pre>
+      <script type="application/json">{
+        "comment": "Un comentario (en inglés, como suele escribirlos la IA): «esto da 5». Lean no lo lee. El cálculo de verdad da 4."
+      }</script>
+    </figure>
+    <div class="trap">
+      <p><strong>Regla de auditor:</strong> los comentarios los escribe quien escribe el código, muchas veces la IA. Sirven para orientarte, pero si el comentario y el código dicen cosas distintas, manda el código.</p>
+    </div>
+    <div class="q" data-q="m0-l2.comment-vs-code"></div>
+  </section>
+
+  <section class="step" data-kind="boss">
+    <h2>El jefe, hoy</h2>
+    <p>Hoy despejas los dos comentarios de documentación del jefe, los que van entre <code class="l">/--</code> y <code class="l">-/</code>. La IA explica ahí, en inglés, qué hace cada parte.</p>
+    <p>Son útiles para orientarte. Pero recuerda: Lean no los ha comprobado. Lo que está garantizado es el código que viene debajo.</p>
+    <div class="boss-view"></div>
+    <div class="q" data-q="m0-l2.boss-doc"></div>
+  </section>
+
+  <section class="step" data-kind="lab" data-file="Practice/M0/L2.lean">
+    <h2>Laboratorio</h2>
+    <p>Abre el archivo en VS Code y sigue las instrucciones que hay dentro. Son seis pasos cortos; en resumen:</p>
+    <ol>
+      <li>Pon el cursor en cada <code class="l">#eval</code> y en cada <code class="l">#check</code> y mira el panel.</li>
+      <li>Busca el subrayado amarillo y pasa el ratón por encima para leer el aviso.</li>
+      <li>Rompe un teorema a propósito y mira cómo se pone rojo. Luego <code>Ctrl+Z</code> lo deja como estaba.</li>
+    </ol>
+    <p>No puedes estropear nada: si te pierdes, <code>Ctrl+Z</code> varias veces o cierra sin guardar.</p>
+    <div class="q" data-q="m0-l2.lab-eval"></div>
+    <div class="q" data-q="m0-l2.lab-red"></div>
+  </section>
+
+  <section class="step" data-kind="wrap">
+    <h2>Llévate esto</h2>
+    <ul class="takeaways">
+      <li>A la izquierda el código, a la derecha el panel Lean Infoview, que contesta sobre la línea del cursor. Las respuestas cortas también salen al final de cada línea.</li>
+      <li><code class="l">#eval</code> calcula, <code class="l">#check</code> te dice el tipo.</li>
+      <li>Rojo es error, amarillo es aviso (busca los <code class="l">sorry</code>), azul es información. Los comentarios no se comprueban.</li>
+    </ul>
+  </section>
+
+</main>
+<script src="../catalog.js"></script>
+<script src="../assets/boss.js"></script>
+<script src="../questions/m0-l2.js"></script>
+<script src="../assets/math.js"></script>
+<script src="../assets/engine.js"></script>
+</body>
+</html>

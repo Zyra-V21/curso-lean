@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2.3 Decidir y repetir: if, match y recursión | Leer Lean</title>
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="lesson" data-lesson="m2-l3" data-base="../">
+<main id="lesson">
+
+  <section class="step" data-kind="cover">
+    <h1>Decidir y repetir: if, match y recursión</h1>
+    <p class="lede">En una frase: las definiciones eligen un camino según el caso y repiten llamándose a sí mismas; tú las sigues a mano, caso por caso, como quien sigue una receta.</p>
+    <div class="why">
+      <p><strong>Por qué te importa:</strong> los errores más típicos viven en los casos: la lista vacía, el límite (¿el 100 entra o no?), el último paso. Si sabes seguir una definición a mano, los encuentras tú antes que nadie.</p>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Si pasa esto, una cosa; si no, otra</h2>
+    <p>Con <code class="l">if ... then ... else</code> una función elige un camino. Esta comisión cobra 1 a las cantidades pequeñas y el 1 % al resto:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok" data-id="fee">def fee (amount : Nat) : Nat :=
+  ⟪if amount &lt; 100|cond⟫ ⟪then 1|then⟫ ⟪else amount / 100|else⟫</pre>
+      <script type="application/json">{
+        "cond": "La condición: ¿la cantidad es menor que 100?",
+        "then": "Si la condición es verdad, la función devuelve 1.",
+        "else": "Si no, devuelve la cantidad entre 100, redondeando hacia abajo (es un <code>Nat</code>)."
+      }</script>
+    </figure>
+<pre class="lean" data-uses="fee">#eval fee 50   --> 1
+#eval fee 100  --> 1
+#eval fee 250  --> 2</pre>
+    <p>Mira <code class="l">fee 100</code>: ¿100 es menor que 100? No. Así que va por el <code class="l">else</code>: 100 / 100 = 1. En los límites es donde hay que mirar con lupa.</p>
+    <div class="note">
+      <p>Para decidir, Lean calcula la condición y obtiene un <code class="l">Bool</code>: <code class="l">true</code> o <code class="l">false</code>, en minúscula, valores para calcular. <code class="l">True</code> y <code class="l">False</code>, en mayúscula, son proposiciones: cosas que se afirman. Se parecen, pero no son lo mismo:</p>
+<pre class="lean">#check true   --> Bool.true : Bool
+#check True   --> True : Prop</pre>
+    </div>
+    <div class="q" data-q="m2-l3.if-fee"></div>
+  </section>
+
+  <section class="step">
+    <h2>Según la forma: match</h2>
+    <p>Con <code class="l">match</code> una función mira qué forma tiene el dato y elige un caso. Cada caso empieza con una barra <code class="l">|</code>:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok" data-id="describe">def describe (n : Nat) : String :=
+  ⟪match n with|match⟫
+  ⟪| 0 => "zero"|arm0⟫
+  ⟪| 1 => "one"|arm1⟫
+  ⟪| _ => "many"|armAny⟫</pre>
+      <script type="application/json">{
+        "match": "«Mira qué forma tiene <code>n</code> y elige el caso que encaje.» Devuelve un <code>String</code>: texto entre comillas.",
+        "arm0": "Si <code>n</code> es 0, devuelve el texto \"zero\". La flecha <code>=></code> separa el caso de lo que devuelve.",
+        "arm1": "Si <code>n</code> es 1, devuelve \"one\".",
+        "armAny": "La barra baja <code>_</code> significa «cualquier otra cosa». Lean prueba los casos de arriba abajo y se queda con el primero que encaja."
+      }</script>
+    </figure>
+<pre class="lean" data-uses="describe">#eval describe 1  --> "one"
+#eval describe 5  --> "many"</pre>
+    <div class="q" data-q="m2-l3.match-any"></div>
+  </section>
+
+  <section class="step">
+    <h2>Repetir: una función que se llama a sí misma</h2>
+    <p>Esta función suma todos los números desde 1 hasta el que le pidas. Para eso se llama a sí misma con un número más pequeño. Eso se llama <strong>recursión</strong>.</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok" data-id="sumto">def sumTo : ⟪Nat → Nat|sig⟫
+  ⟪| 0 => 0|base⟫
+  ⟪| n + 1 => (n + 1) + sumTo n|step⟫</pre>
+      <script type="application/json">{
+        "sig": "Recibe un <code>Nat</code> y devuelve un <code>Nat</code>. La entrada no tiene nombre: los casos de abajo miran directamente su forma.",
+        "base": "El <strong>caso base</strong>: sumar hasta 0 da 0. Aquí la repetición se para.",
+        "step": "Cualquier número que no sea 0 tiene la forma <code>n + 1</code>, donde <code>n</code> es el anterior. Suma ese número y vuelve a llamar a <code>sumTo</code> con el anterior."
+      }</script>
+    </figure>
+    <p>Se sigue a mano desenrollándola, un paso cada vez, hasta llegar al caso base:</p>
+<pre class="lean" data-check="skip">sumTo 3
+= 3 + sumTo 2
+= 3 + (2 + sumTo 1)
+= 3 + (2 + (1 + sumTo 0))
+= 3 + (2 + (1 + 0))
+= 6</pre>
+<pre class="lean" data-uses="sumto">#eval sumTo 3  --> 6</pre>
+    <div class="q" data-q="m2-l3.sumto-four"></div>
+  </section>
+
+  <section class="step">
+    <h2>Listas: el primero y el resto</h2>
+    <p>Una <strong>lista</strong> son varios datos en fila, entre corchetes: <code class="l">[5, 10, 20]</code>. La lista vacía es <code class="l">[]</code>. Para recorrerla, un <code class="l">match</code> separa el primer elemento del resto:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok" data-id="total">def total : List Nat → Nat
+  ⟪| [] => 0|nil⟫
+  ⟪| x :: xs => x + total xs|cons⟫</pre>
+      <script type="application/json">{
+        "nil": "Si la lista está vacía, el total es 0. Es el caso base.",
+        "cons": "<code>x :: xs</code> se lee «el primero, <code>x</code>, y el resto, <code>xs</code>». Suma el primero al total del resto: la función se llama a sí misma con una lista más corta."
+      }</script>
+    </figure>
+<pre class="lean" data-uses="total">#eval total [5, 10, 20]  --> 35</pre>
+    <p>A mano: <code class="l">5 + total [10, 20]</code>, luego <code class="l">5 + (10 + total [20])</code>, luego <code class="l">5 + (10 + (20 + total []))</code>, y el caso base pone el 0 final: 35.</p>
+    <div class="trap">
+      <p><strong>Ojo de auditor:</strong> si la IA hubiera escrito <code class="l">| [] => 1</code> en el caso base, todos los totales saldrían con 1 de más. Lean no se quejaría: es una definición válida, solo que no es la suma. Los casos base y los límites son lo primero que se revisa.</p>
+    </div>
+    <div class="q" data-q="m2-l3.count-spot"></div>
+  </section>
+
+  <section class="step">
+    <h2>Lean exige que la repetición termine</h2>
+    <p>Una función que se llama a sí misma tiene que acabar algún día. Lean lo comprueba, y si no ve que termina, rechaza la definición en rojo: <code>fail to show termination</code> («no consigo demostrar que termina»).</p>
+    <p>La IA puede saltarse esa comprobación escribiendo <code class="l">partial def</code>:</p>
+<pre class="lean" data-check="ok">partial def countdown (n : Nat) : Nat :=
+  if n = 0 then 0 else countdown (n - 1)
+
+#eval countdown 5  --> 0</pre>
+    <p>Lean calcula con ella sin problema, pero la trata como una caja negra: no puede demostrar nada sobre lo que hace por dentro. Ni siquiera que <code class="l">countdown 0</code> es 0, aunque salte a la vista.</p>
+    <div class="note">
+      <p><code class="l">partial</code> no es una trampa como <code class="l">sorry</code>: con él no se pueden demostrar cosas falsas. Pero si un teorema importante habla de una función <code class="l">partial</code>, probablemente dice muy poco sobre ella. Pregunta por qué no se demostró que termina.</p>
+    </div>
+    <div class="q" data-q="m2-l3.partial-meaning"></div>
+  </section>
+
+  <section class="step" data-kind="boss">
+    <h2>El jefe: una definición de verdad</h2>
+    <p>Hoy no despejas piezas nuevas, pero vas a leer una definición real del proyecto. Es <code class="l">RoundsConsistent</code>, la primera parte de lo que promete el teorema del jefe. Está escrita justo con lo de hoy: casos sobre una lista y recursión.</p>
+    <figure class="lupa">
+<pre class="lean" data-check="skip">def RoundsConsistent (claim : R) : ⟪List (R × R × R) → Prop|sig⟫
+  ⟪| [] => True|nil⟫
+  | ⟪(c0, cInf, r) :: rs|cons⟫ =>
+      ⟪whirFoldClaim claim c0 cInf 0 + whirFoldClaim claim c0 cInf 1 = claim|check⟫
+        ⟪∧ RoundsConsistent (whirFoldClaim claim c0 cInf r) rs|rec⟫</pre>
+      <script type="application/json">{
+        "sig": "Recibe una lista de rondas (cada ronda son tres valores juntos, eso es <code>R × R × R</code>) y devuelve un <code>Prop</code>: una afirmación, no un número.",
+        "nil": "Si no hay rondas, la afirmación es <code>True</code>: verdad sin comprobar nada. Es el caso base.",
+        "cons": "La primera ronda, con sus tres valores <code>c0</code>, <code>cInf</code> y <code>r</code>, y el resto de rondas, <code>rs</code>.",
+        "check": "La comprobación de esa ronda: el valor en 0 más el valor en 1 tiene que dar el <code>claim</code> actual.",
+        "rec": "Y además (<code>∧</code>), el resto de rondas tiene que ser consistente. Aquí la definición se llama a sí misma con una lista más corta: la recursión de hoy."
+      }</script>
+    </figure>
+    <div class="q" data-q="m2-l3.boss-empty"></div>
+    <p>En el jefe, <code class="l">RoundsConsistent</code> sigue en niebla. En la lección 3.2 descubrirás algo curioso sobre ella.</p>
+    <div class="boss-view"></div>
+  </section>
+
+  <section class="step" data-kind="lab" data-file="Practice/M2/L3.lean">
+    <h2>Laboratorio</h2>
+    <ol>
+      <li>Abre el archivo. Para cada <code>#eval</code>, calcula primero a mano y luego pon el cursor al final de la línea para ver la respuesta en el panel Lean Infoview.</li>
+      <li>Haz el paso 4: cambia el caso base de <code>total</code> de 0 a 1 y mira qué pasa con el resultado (y si sale algo en rojo).</li>
+      <li>Deshaz el cambio con Ctrl+Z.</li>
+    </ol>
+    <div class="q" data-q="m2-l3.lab-base"></div>
+  </section>
+
+  <section class="step" data-kind="wrap">
+    <h2>Llévate esto</h2>
+    <ul class="takeaways">
+      <li><code class="l">if ... then ... else</code> elige un camino según una condición. Mira siempre los límites: ¿el 100 entra o no?</li>
+      <li><code class="l">match</code> y la recursión se siguen a mano, caso por caso, hasta el caso base. Ahí es donde más errores se esconden.</li>
+      <li><code class="l">partial def</code> es una caja negra: Lean calcula con ella, pero no demuestra nada sobre ella.</li>
+    </ul>
+  </section>
+
+</main>
+<script src="../catalog.js"></script>
+<script src="../assets/boss.js"></script>
+<script src="../questions/m2-l3.js"></script>
+<script src="../assets/math.js"></script>
+<script src="../assets/engine.js"></script>
+</body>
+</html>

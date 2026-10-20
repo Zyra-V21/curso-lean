@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2.4 Estructuras: datos con campos (y con promesas) | Leer Lean</title>
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="lesson" data-lesson="m2-l4" data-base="../">
+<main id="lesson">
+
+  <section class="step" data-kind="cover">
+    <h1>Estructuras: datos con campos (y con promesas)</h1>
+    <p class="lede">En una frase: una <code class="l">structure</code> agrupa varios datos con nombre, y algunos de sus campos no son datos sino promesas que alguien tuvo que demostrar.</p>
+    <div class="why">
+      <p><strong>Por qué te importa:</strong> el teorema del jefe esconde todas sus hipótesis dentro de una estructura, <code class="l">WhirAccept</code>. Si no sabes leer estructuras, no ves qué se está dando por supuesto.</p>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Un registro con campos</h2>
+    <p>Una <strong>estructura</strong> es como una ficha con casillas fijas. Esta describe una cuenta: de quién es y cuánto saldo tiene. Toca las piezas:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok" data-id="account">⟪structure|kw⟫ ⟪Account|name⟫ ⟪where|kw⟫
+  ⟪owner : String|owner⟫
+  ⟪balance : Nat|balance⟫
+
+def alice : Account := ⟪{ owner := "alice", balance := 10 }|build⟫</pre>
+      <script type="application/json">{
+        "kw": "<code>structure ... where</code> define un tipo nuevo hecho de campos.",
+        "name": "El nombre del tipo nuevo: <code>Account</code> («cuenta»).",
+        "owner": "Un campo: se llama <code>owner</code> («dueño») y guarda un <code>String</code> (texto).",
+        "balance": "Otro campo: <code>balance</code> («saldo»), un <code>Nat</code>.",
+        "build": "Así se construye una cuenta: rellenando cada campo por su nombre. <code>alice</code> es una cuenta de \"alice\" con saldo 10."
+      }</script>
+    </figure>
+    <p>Para leer un campo se usa un punto: <code class="l">alice.balance</code> se lee «el <code class="l">balance</code> de <code class="l">alice</code>».</p>
+<pre class="lean" data-uses="account">#eval alice.balance  --> 10
+#eval alice.owner    --> "alice"</pre>
+    <div class="note">
+      <p>El punto también sirve para llamar a una función del tipo del dato. Si <code class="l">xs</code> es una lista, <code class="l">xs.length</code> es lo mismo que <code class="l">List.length xs</code>: su longitud.</p>
+<pre class="lean">def xs : List Nat := [5, 10, 20]
+#eval xs.length       --> 3
+#eval List.length xs  --> 3</pre>
+      <p>En el jefe verás <code class="l">finalPoly.length</code> o <code class="l">acc.finalRand.reverse</code>: son funciones llamadas con punto (longitud, darle la vuelta a la lista).</p>
+    </div>
+    <div class="q" data-q="m2-l4.field-access"></div>
+  </section>
+
+  <section class="step">
+    <h2>Copias con cambios, y el atajo ⟨⟩</h2>
+    <p>En Lean los datos no se modifican: se hacen copias. <code class="l">{ alice with balance := 5 }</code> es «una copia de <code class="l">alice</code> con el saldo cambiado a 5». La <code class="l">alice</code> original no cambia:</p>
+<pre class="lean" data-uses="account">def alice2 : Account := { alice with balance := 5 }
+#eval alice2.balance  --> 5
+#eval alice2.owner    --> "alice"
+#eval alice.balance   --> 10</pre>
+    <p>Hay un atajo para construir: los ángulos <code class="l">⟨ ⟩</code> rellenan los campos en el orden en que se declararon, sin decir sus nombres:</p>
+<pre class="lean" data-uses="account">def bob : Account := ⟨"bob", 20⟩
+#eval bob.balance  --> 20</pre>
+    <div class="trap">
+      <p><strong>Ojo de auditor:</strong> con <code class="l">⟨ ⟩</code> el orden importa y no se ve. Solo sabes qué es cada cosa si miras la <code class="l">structure</code>. Si dos campos son del mismo tipo (por ejemplo, dos <code class="l">Nat</code>), <code class="l">⟨5, 8⟩</code> y <code class="l">⟨8, 5⟩</code> son válidos los dos y significan cosas distintas. Lean no avisa.</p>
+    </div>
+    <div class="q" data-q="m2-l4.anon-order"></div>
+  </section>
+
+  <section class="step">
+    <h2>Campos que son promesas</h2>
+    <p>Aquí viene lo importante. Un campo puede tener como tipo una proposición. Entonces no guarda un dato: guarda una <strong>demostración</strong> de que esa proposición es verdad.</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok" data-id="positive">structure PositiveAmount where
+  ⟪value : Nat|value⟫
+  ⟪pos : 0 &lt; value|promise⟫</pre>
+      <script type="application/json">{
+        "value": "Un campo normal: un número natural.",
+        "promise": "Una promesa. Su tipo es la proposición <code>0 &lt; value</code>. Para rellenar este campo hay que darle a Lean una demostración de que <code>value</code> es mayor que 0."
+      }</script>
+    </figure>
+<pre class="lean" data-uses="positive">def five : PositiveAmount := ⟨5, by decide⟩
+#eval five.value  --> 5</pre>
+    <p><code class="l">by decide</code> es la demostración: Lean calcula que <code class="l">0 &lt; 5</code> es verdad. ¿Y con un 0?</p>
+<pre class="lean" data-uses="positive" data-check="error" data-error="is false">def zero : PositiveAmount := ⟨0, by decide⟩</pre>
+    <p>Lean se niega, en rojo: <code class="l">0 &lt; 0</code> es falso. No hay manera de construir un <code class="l">PositiveAmount</code> con un 0. Por eso, si tienes uno en la mano, sabes seguro que su <code class="l">value</code> es mayor que 0: alguien tuvo que demostrarlo para construirlo.</p>
+    <div class="q" data-q="m2-l4.promise-meaning"></div>
+  </section>
+
+  <section class="step">
+    <h2>¿Quién garantiza la promesa?</h2>
+    <p>Una transferencia válida promete que la cantidad no pasa del saldo. Y un teorema (lo verás a fondo en el módulo 3) dice algo sobre ella:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok">structure ValidTransfer where
+  amount : Nat
+  balance : Nat
+  ⟪enough : amount ≤ balance|enough⟫
+
+def withdraw (t : ValidTransfer) : Nat := t.balance - t.amount
+
+theorem withdraw_add ⟪(t : ValidTransfer)|arg⟫ :
+    ⟪withdraw t + t.amount = t.balance|concl⟫ := by
+  ⟪have h := t.enough|uses⟫
+  unfold withdraw
+  omega</pre>
+      <script type="application/json">{
+        "enough": "La promesa: la cantidad es menor o igual que el saldo.",
+        "arg": "El teorema recibe una transferencia válida, con la promesa incluida.",
+        "concl": "Lo que afirma: si retiras la cantidad y luego la vuelves a sumar, recuperas el saldo.",
+        "uses": "No hace falta leer la demostración. Pero esta línea delata algo: usa <code>t.enough</code>, la promesa. Sin ella, la demostración no sale."
+      }</script>
+    </figure>
+    <p>Sin la promesa sería falso. Con saldo 5 y cantidad 8, en <code class="l">Nat</code> la resta 5 - 8 da 0, y 0 + 8 = 8, no 5:</p>
+<pre class="lean">#eval 5 - 8 + 8  --> 8</pre>
+    <div class="trap">
+      <p><strong>La pregunta de auditor:</strong> el teorema solo habla de transferencias que cumplen la promesa. ¿Quién garantiza que el sistema real solo crea transferencias así? Si el contrato real no comprueba <code class="l">amount ≤ balance</code> antes de restar, el teorema no dice nada de ese caso. Lean no puede saberlo: eso lo miras tú, en el código real.</p>
+    </div>
+    <div class="q" data-q="m2-l4.who-guarantees"></div>
+  </section>
+
+  <section class="step">
+    <h2>inductive: una lista cerrada de opciones</h2>
+    <p>A veces un dato solo puede ser una de unas pocas opciones. Para eso está <code class="l">inductive</code>:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok" data-id="status-type">inductive Status where
+  ⟪| pending|opt⟫
+  ⟪| accepted|opt⟫
+  ⟪| rejected|opt⟫</pre>
+      <script type="application/json">{
+        "opt": "Una de las opciones posibles. Un <code>Status</code> solo puede ser <code>pending</code> (pendiente), <code>accepted</code> (aceptado) o <code>rejected</code> (rechazado). Nada más."
+      }</script>
+    </figure>
+    <p>Una función sobre <code class="l">Status</code> usa un <code class="l">match</code> con un caso por opción:</p>
+<pre class="lean" data-uses="status-type" data-id="status-fn">def isFinal : Status → Bool
+  | Status.pending => false
+  | Status.accepted => true
+  | Status.rejected => true</pre>
+<pre class="lean" data-uses="status-type,status-fn">#eval isFinal Status.accepted  --> true</pre>
+    <p>Un detalle que ayuda al auditor: si un <code class="l">match</code> sobre un <code class="l">Status</code> se olvida de una opción, Lean da un error y dice cuál falta (<code>Missing cases</code>).</p>
+    <div class="trap">
+      <p><strong>Pero ojo con <code class="l">_</code>:</strong> si el <code class="l">match</code> acaba en <code class="l">| _ => ...</code>, ese caso se traga en silencio todas las opciones que falten, y Lean no avisa. Cada <code class="l">_</code> es un sitio que mirar: ¿qué casos está recogiendo, y es correcto lo que devuelve para todos ellos?</p>
+    </div>
+    <div class="q" data-q="m2-l4.inductive-missing"></div>
+  </section>
+
+  <section class="step" data-kind="boss">
+    <h2>El jefe: WhirAccept</h2>
+    <p>Hoy despejas casi toda la estructura <code class="l">WhirAccept</code>. Fíjate en sus tres últimos campos: <code class="l">hlen</code>, <code class="l">opens</code> e <code class="l">identity</code>. No son datos: son promesas, igual que <code class="l">pos</code> en <code class="l">PositiveAmount</code>.</p>
+    <p>Son las hipótesis del teorema, escondidas dentro de la estructura. El teorema viene a decir: «dame un <code class="l">WhirAccept</code> y te garantizo...». La pregunta de hoy aplica aquí: ¿quién garantiza que el verificador real, el de Solidity, solo acepta cuando se cumplen esas tres promesas?</p>
+    <div class="boss-view"></div>
+    <div class="q" data-q="m2-l4.boss-promises"></div>
+  </section>
+
+  <section class="step" data-kind="lab" data-file="Practice/M2/L4.lean">
+    <h2>Laboratorio</h2>
+    <ol>
+      <li>Abre el archivo y mira las respuestas de los <code>#eval</code> en el panel Lean Infoview (cursor al final de cada línea; si no ves el panel, Ctrl+Shift+Enter).</li>
+      <li>Haz el paso 3: cambia <code>⟨5, by decide⟩</code> por <code>⟨0, by decide⟩</code>, pon el cursor sobre lo rojo y lee el mensaje. Luego Ctrl+Z.</li>
+      <li>Haz el paso 4: da la vuelta a <code>⟨"bob", 20⟩</code> y mira qué pasa. Luego Ctrl+Z.</li>
+      <li>En los pasos 3 y 4 también se pone en rojo un <code>#eval</code> de más abajo, con un mensaje que habla de <code>sorry</code>. Es normal: cuando una definición tiene un error, Lean la sustituye por dentro por un <code>sorry</code> y no calcula con ella. El error de verdad es el primero.</li>
+    </ol>
+    <div class="q" data-q="m2-l4.lab-zero"></div>
+  </section>
+
+  <section class="step" data-kind="wrap">
+    <h2>Llévate esto</h2>
+    <ul class="takeaways">
+      <li>Una <code class="l">structure</code> agrupa campos con nombre. <code class="l">x.campo</code> lee un campo y <code class="l">{ x with campo := ... }</code> hace una copia cambiada. Con <code class="l">⟨ ⟩</code>, el orden de los campos manda.</li>
+      <li>Un campo cuyo tipo es una proposición es una promesa: para construir el valor, alguien tuvo que demostrarla.</li>
+      <li>Un teorema que recibe una estructura con promesas las da por supuestas. Pregunta siempre quién las garantiza en el sistema real.</li>
+    </ul>
+  </section>
+
+</main>
+<script src="../catalog.js"></script>
+<script src="../assets/boss.js"></script>
+<script src="../questions/m2-l4.js"></script>
+<script src="../assets/math.js"></script>
+<script src="../assets/engine.js"></script>
+</body>
+</html>

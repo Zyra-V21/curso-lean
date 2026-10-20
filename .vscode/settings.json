@@ -1,0 +1,6 @@
+{
+    // Turns Error Lens on for this workspace, so Lean's messages (#eval
+    // results, sorry warnings, errors) show at the end of each line, like the
+    // "Lean:" chips in the course.
+    "errorLens.enabled": true
+}

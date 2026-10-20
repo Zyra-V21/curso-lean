@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2.5 Firmas avanzadas: llaves, corchetes y namespaces | Leer Lean</title>
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-page="lesson" data-lesson="m2-l5" data-base="../">
+<main id="lesson">
+
+  <section class="step" data-kind="cover">
+    <h1>Firmas avanzadas: llaves, corchetes y namespaces</h1>
+    <p class="lede">En una frase: además de los argumentos normales entre paréntesis, Lean tiene argumentos que deduce solo (entre llaves), requisitos sobre los tipos (entre corchetes) y líneas al principio del archivo que añaden argumentos sin que se vean.</p>
+    <div class="why">
+      <p><strong>Por qué te importa:</strong> el jefe empieza con <code class="l">(R : Type*) [CommRing R]</code>, y su archivo tiene arriba una línea <code class="l">variable</code> que mete argumentos en el teorema sin que aparezcan escritos en él. Si no sabes leer esto, no sabes qué suposiciones lleva el teorema.</p>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Llaves: argumentos que Lean deduce solo</h2>
+    <p>Hasta ahora los argumentos iban entre paréntesis, como <code class="l">(n : Nat)</code>, y los escribías tú al usar la función. Los que van entre llaves <code>{ }</code> son <strong>implícitos</strong>: no los escribes tú, Lean los deduce mirando el resto.</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok">def ⟪pair|name⟫ ⟪{α : Type}|implicit⟫ ⟪(a b : α)|explicit⟫ : ⟪List α|out⟫ := [a, b]
+
+#eval pair 3 7  --> [3, 7]
+#eval pair "hola" "adiós"  --> ["hola", "adiós"]</pre>
+      <script type="application/json">{
+        "name": "Una función que mete dos cosas en una lista.",
+        "implicit": "<code>{α : Type}</code>: α (la letra griega alfa) es un tipo cualquiera: <code>Nat</code>, <code>String</code>... Va entre llaves, así que no lo escribes: Lean lo deduce mirando <code>a</code> y <code>b</code>.",
+        "explicit": "<code>(a b : α)</code>: dos argumentos normales, los dos del mismo tipo α. Estos sí los escribes.",
+        "out": "Devuelve una lista de cosas de tipo α."
+      }</script>
+    </figure>
+    <p>En <code class="l">pair 3 7</code> Lean ve números y deduce que α es <code class="l">Nat</code>. En <code class="l">pair "hola" "adiós"</code> deduce que es <code class="l">String</code>. Una sola definición sirve para todos los tipos.</p>
+    <div class="note">
+      <p>Si hace falta decirlo a mano, se puede: <code class="l">pair (α := Int) 3 7</code>. Se llama <strong>argumento con nombre</strong>. Lo verás en el archivo del jefe.</p>
+    </div>
+    <div class="q" data-q="m2-l5.implicit"></div>
+  </section>
+
+  <section class="step">
+    <h2>Corchetes: requisitos para el tipo</h2>
+    <p>A veces una función no vale para cualquier tipo. Para sumar, el tipo tiene que saber sumar. Ese requisito se pide entre corchetes <code>[ ]</code>.</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok" data-id="double-def">def double ⟪{α : Type}|implicit⟫ ⟪[Add α]|inst⟫ (x : α) : α := ⟪x + x|body⟫
+
+#eval double 21  --> 42
+#eval double (-3 : Int)  --> -6</pre>
+      <script type="application/json">{
+        "implicit": "Un tipo cualquiera α, implícito, como antes.",
+        "inst": "<code>[Add α]</code>: un requisito. Solo puedes usar <code>double</code> con tipos que sepan sumar. <code>Nat</code> e <code>Int</code> cumplen; <code>Bool</code> y <code>String</code> no.",
+        "body": "<code>x + x</code>: para esto hace falta el requisito. Sin él, Lean no sabría qué significa <code>+</code> para α."
+      }</script>
+    </figure>
+    <div class="analogy">
+      <p>Es como el requisito de una banda: «nivel 60 o más». No dice quién eres, solo qué tienes que cumplir para entrar.</p>
+    </div>
+    <p>Si usas <code class="l">double</code> con un tipo que no sabe sumar, Lean se niega:</p>
+<pre class="lean" data-check="error" data-error="failed to synthesize" data-uses="double-def">#eval double "ab"</pre>
+    <p>El mensaje en rojo dice <code>failed to synthesize ... Add String</code>: «no encuentro cómo sumar textos».</p>
+    <div class="q" data-q="m2-l5.instance-mul"></div>
+  </section>
+
+  <section class="step">
+    <h2>Type* y [CommRing R]: lo que verás con Mathlib</h2>
+    <p>En código que usa Mathlib (la gran biblioteca de matemáticas de Lean, la que usa el jefe) verás esto:</p>
+    <figure class="lupa">
+<pre class="lean" data-check="skip">⟪variable|var⟫ ⟪{R : Type*}|typestar⟫ ⟪[CommRing R]|ring⟫</pre>
+      <script type="application/json">{
+        "var": "<code>variable</code>: lo ves en el paso siguiente.",
+        "typestar": "<code>{R : Type*}</code>: R es un tipo cualquiera, implícito. El asterisco es un detalle técnico sobre el tamaño de los tipos. Para leer, trátalo como <code>Type</code>.",
+        "ring": "<code>[CommRing R]</code>: un requisito. R tiene que ser un <strong>anillo conmutativo</strong>: tiene suma, resta y producto, y cumplen las reglas de siempre, como a + b = b + a o a · b = b · a."
+      }</script>
+    </figure>
+    <p>Cumplen <code class="l">[CommRing R]</code> los enteros (<code class="l">Int</code>), las fracciones y los cuerpos finitos que se usan en criptografía, como KoalaBear. Un <strong>cuerpo</strong> es un conjunto de números donde puedes sumar, restar, multiplicar y dividir por cualquier cosa menos 0, como las fracciones. Los verás en el módulo 6.</p>
+    <p><code class="l">Nat</code> no lo cumple: con naturales no hay negativos, así que restar no funciona como debe (te acuerdas de que <code class="l">3 - 5</code> da 0).</p>
+    <div class="q" data-q="m2-l5.commring"></div>
+  </section>
+
+  <section class="step">
+    <h2>variable: argumentos que no se ven</h2>
+    <p>Escribir <code class="l">{R : Type*} [CommRing R]</code> en cada teorema cansa. Por eso se escribe una vez con <code class="l">variable</code>, y Lean lo añade solo, sin que se vea, a cada definición o teorema de debajo que use esa letra.</p>
+    <figure class="lupa">
+<pre class="lean" data-check="ok">⟪variable {α : Type} [Mul α]|var⟫
+def square (x : α) : α := x * x
+
+⟪#check @square|check⟫  --> @square : {α : Type} → [Mul α] → α → α</pre>
+      <script type="application/json">{
+        "var": "Declara α y el requisito <code>[Mul α]</code> (saber multiplicar) una sola vez, para todo lo que venga debajo.",
+        "check": "<code>#check @square</code> enseña la firma completa (la <code>@</code> pide que se vea también lo implícito). Aparecen <code>{α : Type}</code> y <code>[Mul α]</code>, aunque la línea de <code>square</code> no los escribe."
+      }</script>
+    </figure>
+    <div class="trap">
+      <p><strong>Trampa de auditor:</strong> una línea <code class="l">variable</code> también puede traer hipótesis, como <code class="l">(h : balance &lt; 0)</code>. Si debajo pone <code class="l">include h</code>, Lean mete esa hipótesis en los teoremas aunque su línea no la mencione. Lee siempre las líneas <code class="l">variable</code> e <code class="l">include</code> del principio del archivo: son parte del enunciado.</p>
+    </div>
+    <div class="q" data-q="m2-l5.variable-hidden"></div>
+  </section>
+
+  <section class="step">
+    <h2>Apellidos: namespace y open</h2>
+    <p>Los nombres se agrupan en carpetas, como apellidos. Todo lo que se define entre <code class="l">namespace Bank</code> y <code class="l">end Bank</code> se apellida <code>Bank</code>.</p>
+<pre class="lean" data-check="ok">namespace Bank
+def fee : Nat := 3
+end Bank
+
+#eval Bank.fee  --> 3
+open Bank in
+#eval fee  --> 3</pre>
+    <p>Fuera de la carpeta, el nombre completo es <code class="l">Bank.fee</code>. Con <code class="l">open Bank</code> puedes usar el nombre corto. El jefe vive dentro de <code class="l">namespace Whir</code>, así que su nombre completo es <code>Whir.whir_subverifier_soundness</code>.</p>
+    <div class="note">
+      <p>Dos teoremas pueden llamarse igual en carpetas distintas. Cuando la IA te cite un teorema, mira el nombre completo.</p>
+    </div>
+    <div class="q" data-q="m2-l5.full-name"></div>
+  </section>
+
+  <section class="step" data-kind="boss">
+    <h2>El jefe, hoy: R y su requisito</h2>
+    <p>Hoy despejas <code class="l">(R : Type*) [CommRing R]</code> en la cabecera de <code class="l">WhirAccept</code>: el registro vale para cualquier tipo R que sea un anillo conmutativo.</p>
+    <p>Y hay algo que la niebla no enseña: arriba del archivo real está la línea <code class="l">variable {R : Type*} [CommRing R]</code>. Como el teorema usa <code class="l">WhirAccept R</code>, Lean le añade esos dos argumentos por delante. La cabecera completa empieza así:</p>
+<pre class="lean" data-check="skip">theorem whir_subverifier_soundness {R : Type*} [CommRing R] (acc : WhirAccept R) :</pre>
+    <p>Al final del archivo, la IA lo usa con <code class="l">(R := EF8)</code>: el cuerpo concreto del proyecto, pasado como argumento con nombre.</p>
+    <div class="boss-view"></div>
+    <div class="q" data-q="m2-l5.boss-generic"></div>
+  </section>
+
+  <section class="step" data-kind="lab" data-file="Practice/M2/L5.lean">
+    <h2>Laboratorio</h2>
+    <p>Abre el archivo y sigue los pasos de los comentarios. En resumen:</p>
+    <ol>
+      <li>Pon el cursor en cada <code class="l">#eval</code> y mira la respuesta en el panel Lean Infoview.</li>
+      <li>Cambia el <code>21</code> de <code class="l">#eval double 21</code> por <code class="l">true</code> y pasa el ratón por el subrayado rojo. Luego Ctrl+Z.</li>
+      <li>Mira lo que responde <code class="l">#check @square</code>.</li>
+    </ol>
+    <div class="q" data-q="m2-l5.lab-bool"></div>
+  </section>
+
+  <section class="step" data-kind="wrap">
+    <h2>Llévate esto</h2>
+    <ul class="takeaways">
+      <li><code class="l">{x : T}</code> es un argumento implícito: Lean lo deduce. <code class="l">[Add α]</code> o <code class="l">[CommRing R]</code> es un requisito sobre el tipo.</li>
+      <li>Las líneas <code class="l">variable</code> e <code class="l">include</code> del principio del archivo añaden argumentos e hipótesis a los teoremas de debajo, aunque no se vean: son parte del enunciado.</li>
+      <li><code class="l">namespace</code> pone apellidos a los nombres: mira siempre el nombre completo.</li>
+    </ul>
+  </section>
+
+</main>
+<script src="../catalog.js"></script>
+<script src="../assets/boss.js"></script>
+<script src="../questions/m2-l5.js"></script>
+<script src="../assets/math.js"></script>
+<script src="../assets/engine.js"></script>
+</body>
+</html>

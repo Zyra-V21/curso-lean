@@ -1,0 +1,6 @@
+name = "practice"
+version = "0.1.0"
+defaultTargets = ["Practice"]
+
+[[lean_lib]]
+name = "Practice"
